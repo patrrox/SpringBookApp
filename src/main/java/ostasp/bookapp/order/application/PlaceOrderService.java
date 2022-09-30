@@ -8,7 +8,7 @@ import ostasp.bookapp.order.domain.OrderRepository;
 
 @Service
 @AllArgsConstructor
-public class PlaceOrderService implements PlaceOrderUseCase {
+class PlaceOrderService implements PlaceOrderUseCase {
 
     private final OrderRepository repository;
 

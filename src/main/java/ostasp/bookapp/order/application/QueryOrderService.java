@@ -10,7 +10,7 @@ import java.util.List;
 
 @Service
 @AllArgsConstructor
-public class QueryOrderService implements QueryOrderUseCase {
+class QueryOrderService implements QueryOrderUseCase {
 
     private final OrderRepository repository;
 

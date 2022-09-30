@@ -19,6 +19,8 @@ public interface CatalogUseCase {
 
     List<Book> findAll();
 
+    List<Book> findByTitleAndAuthor(String title, String author);
+
     Optional<Book> findOneByTitleAndAuthor(String title, String author);
 
     void addBook(CreateBookCommand createBookCommand);
@@ -26,6 +28,8 @@ public interface CatalogUseCase {
     void removeById(Long id);
 
     UpdateBookResponse updateBook(UpdateBookCommand updateBookCommand);
+
+    Optional <Book> findById(Long id);
 
     @Value
     class CreateBookCommand {
