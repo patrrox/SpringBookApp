@@ -17,7 +17,6 @@ public interface PlaceOrderUseCase {
     @Builder
     @Value
     class PlaceOrderCommand {
-        @Singular
         List<OrderItem> items;
         Recipient recipient;
     }
