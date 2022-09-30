@@ -9,13 +9,15 @@ import java.util.List;
 
 
 @Data
+@Builder
 public class Order {
 
-     Long id;
-     OrderStatus status;
-     List<OrderItem> items;
-     Recipient recipient;
-     LocalDateTime createdAt;
+    private Long id;
+    @Builder.Default
+    private OrderStatus status = OrderStatus.NEW;
+    private List<OrderItem> items;
+    private Recipient recipient;
+    private LocalDateTime createdAt;
 
     BigDecimal totalPrice() {
         return items.stream()

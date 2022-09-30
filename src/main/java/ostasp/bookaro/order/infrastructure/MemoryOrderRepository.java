@@ -19,14 +19,13 @@ public class MemoryOrderRepository implements OrderRepository {
     @Override
     public Order save(Order order) {
         if (order.getId() != null) {
-            storage.put(order.getId(), order);
+            return storage.put(order.getId(), order);
         } else {
             long nextId = nextId();
             order.setId(nextId);
             order.setCreatedAt(LocalDateTime.now());
-            storage.put(nextId, order);
+            return storage.put(nextId, order);
         }
-        return null;
     }
 
     @Override

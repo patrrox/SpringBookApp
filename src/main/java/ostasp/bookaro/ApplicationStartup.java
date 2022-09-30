@@ -31,10 +31,13 @@ public class ApplicationStartup implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
         initData();
+        searchCatalog();
+    }
+
+    private void searchCatalog() {
         findByTitle();
         findAndUpdate();
         findByTitle();
-
     }
 
     private void findByTitle() {
