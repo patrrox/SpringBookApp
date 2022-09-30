@@ -1,4 +1,4 @@
-package ostasp.bookaro.order.domain;
+package ostasp.bookapp.order.domain;
 
 import java.util.List;
 

@@ -1,4 +1,4 @@
-package ostasp.bookaro.catalog.domain;
+package ostasp.bookapp.catalog.domain;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

@@ -1,10 +1,9 @@
-package ostasp.bookaro.order.infrastructure;
+package ostasp.bookapp.order.infrastructure;
 
 import org.springframework.stereotype.Repository;
-import ostasp.bookaro.order.domain.Order;
-import ostasp.bookaro.order.domain.OrderRepository;
+import ostasp.bookapp.order.domain.Order;
+import ostasp.bookapp.order.domain.OrderRepository;
 
-import java.sql.Array;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -19,13 +18,14 @@ public class MemoryOrderRepository implements OrderRepository {
     @Override
     public Order save(Order order) {
         if (order.getId() != null) {
-            return storage.put(order.getId(), order);
+             storage.put(order.getId(), order);
         } else {
             long nextId = nextId();
             order.setId(nextId);
             order.setCreatedAt(LocalDateTime.now());
-            return storage.put(nextId, order);
+             storage.put(nextId, order);
         }
+        return order;
     }
 
     @Override

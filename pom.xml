@@ -9,9 +9,9 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>ostasp</groupId>
-	<artifactId>bookaro</artifactId>
+	<artifactId>bookapp</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>Bookaro Online Store</name>
+	<name>SpringBookApp</name>
 	<description>Demo project for Spring Boot</description>
 	<properties>
 		<java.version>19</java.version>

@@ -1,4 +1,4 @@
-package ostasp.bookaro.order.domain;
+package ostasp.bookapp.order.domain;
 
 
 import lombok.*;
@@ -19,7 +19,7 @@ public class Order {
     private Recipient recipient;
     private LocalDateTime createdAt;
 
-    BigDecimal totalPrice() {
+    public BigDecimal totalPrice() {
         return items.stream()
                 .map(item -> item.getBook().getPrice().multiply(BigDecimal.valueOf(item.getQuantity())))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);

@@ -1,11 +1,10 @@
-package ostasp.bookaro.catalog.application;
+package ostasp.bookapp.catalog.application;
 
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import ostasp.bookaro.catalog.application.port.CatalogUseCase;
-import ostasp.bookaro.catalog.domain.Book;
-import ostasp.bookaro.catalog.domain.CatalogRepository;
+import ostasp.bookapp.catalog.application.port.CatalogUseCase;
+import ostasp.bookapp.catalog.domain.Book;
+import ostasp.bookapp.catalog.domain.CatalogRepository;
 
 import java.util.Arrays;
 import java.util.List;
@@ -23,6 +22,15 @@ public class CatalogService implements CatalogUseCase {
                 .stream()
                 .filter(book -> book.getTitle().startsWith(title))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public Optional<Book> findOneByTitle(String title) {
+        return repository
+                .findAll()
+                .stream()
+                .filter(book -> book.getTitle().startsWith(title))
+                .findFirst();
     }
 
     @Override
@@ -49,8 +57,7 @@ public class CatalogService implements CatalogUseCase {
 
     @Override
     public void addBook(CreateBookCommand createBookCommand) {
-        Book book = new Book(createBookCommand.getTitle(), createBookCommand.getAuthor(), createBookCommand.getYear(), createBookCommand.getPrice());
-
+        Book book = createBookCommand.toBook();
         repository.save(book);
     }
 

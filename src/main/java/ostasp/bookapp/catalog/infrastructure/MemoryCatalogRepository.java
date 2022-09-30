@@ -1,8 +1,8 @@
-package ostasp.bookaro.catalog.infrastructure;
+package ostasp.bookapp.catalog.infrastructure;
 
 import org.springframework.stereotype.Repository;
-import ostasp.bookaro.catalog.domain.Book;
-import ostasp.bookaro.catalog.domain.CatalogRepository;
+import ostasp.bookapp.catalog.domain.Book;
+import ostasp.bookapp.catalog.domain.CatalogRepository;
 
 import java.util.ArrayList;
 import java.util.List;

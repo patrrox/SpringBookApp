@@ -1,10 +1,9 @@
-package ostasp.bookaro.order.application.port;
+package ostasp.bookapp.order.application.port;
 
 import lombok.Builder;
-import lombok.Singular;
 import lombok.Value;
-import ostasp.bookaro.order.domain.OrderItem;
-import ostasp.bookaro.order.domain.Recipient;
+import ostasp.bookapp.order.domain.OrderItem;
+import ostasp.bookapp.order.domain.Recipient;
 
 import java.util.Arrays;
 import java.util.Collections;

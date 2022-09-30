@@ -1,9 +1,11 @@
-package ostasp.bookaro.order.domain;
+package ostasp.bookapp.order.domain;
 
 
+import lombok.Builder;
 import lombok.Value;
 
 @Value
+@Builder
 public class Recipient {
 
     String name;

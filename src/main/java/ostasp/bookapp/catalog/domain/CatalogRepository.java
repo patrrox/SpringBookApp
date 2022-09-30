@@ -1,6 +1,4 @@
-package ostasp.bookaro.catalog.domain;
-
-import org.springframework.stereotype.Repository;
+package ostasp.bookapp.catalog.domain;
 
 import java.util.List;
 import java.util.Optional;

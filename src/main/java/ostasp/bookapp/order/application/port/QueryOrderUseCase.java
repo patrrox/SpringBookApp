@@ -1,6 +1,6 @@
-package ostasp.bookaro.order.application.port;
+package ostasp.bookapp.order.application.port;
 
-import ostasp.bookaro.order.domain.Order;
+import ostasp.bookapp.order.domain.Order;
 
 import java.util.List;
 

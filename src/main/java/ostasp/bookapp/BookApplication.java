@@ -1,4 +1,4 @@
-package ostasp.bookaro;
+package ostasp.bookapp;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
