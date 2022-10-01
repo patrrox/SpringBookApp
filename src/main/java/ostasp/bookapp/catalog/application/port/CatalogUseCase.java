@@ -23,7 +23,7 @@ public interface CatalogUseCase {
 
     Optional<Book> findOneByTitleAndAuthor(String title, String author);
 
-    void addBook(CreateBookCommand createBookCommand);
+    Book addBook(CreateBookCommand createBookCommand);
 
     void removeById(Long id);
 
