@@ -76,7 +76,7 @@ class CatalogService implements CatalogUseCase {
         return repository.findById(command.getId())
                 .map(book -> {
                     Book updatedBook = command.updateFields(book);
-                    repository.save(book);
+                    repository.save(updatedBook);
                     return UpdateBookResponse.SUCCESS;
                 })
                 .orElseGet(() -> new UpdateBookResponse(false, List.of("Book not found with ID " + command.getId())));
@@ -85,6 +85,17 @@ class CatalogService implements CatalogUseCase {
     @Override
     public Optional<Book> findById(Long id) {
         return repository.findById(id);
+    }
+
+    @Override
+    public void updateBookCover(UpdateBookCoverCommand command) {
+
+        int length = command.getFile().length;
+        System.out.println("Received cover command: " + command.getFilename() + "bytes: " + length);
+        repository.findById(command.getId())
+                .ifPresent(book -> {
+                    //book.setCoverId(command.getId());
+        });
     }
 
     @Override

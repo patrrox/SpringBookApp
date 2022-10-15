@@ -1,5 +1,6 @@
 package ostasp.bookapp.catalog.application.port;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Value;
 import ostasp.bookapp.catalog.domain.Book;
@@ -31,6 +32,16 @@ public interface CatalogUseCase {
 
     Optional <Book> findById(Long id);
 
+    void updateBookCover(UpdateBookCoverCommand command);
+
+    @Value
+    class UpdateBookCoverCommand{
+        Long id;
+        byte[] file;
+        String contentType;
+        String filename;
+    }
+
     @Value
     class CreateBookCommand {
         String title;
@@ -45,11 +56,13 @@ public interface CatalogUseCase {
 
     @Value
     @Builder
+    @AllArgsConstructor
     class UpdateBookCommand {
         Long id;
         String title;
         String author;
         Integer year;
+        BigDecimal price;
 
         public Book updateFields(Book book){
             if (title != null)
@@ -58,6 +71,8 @@ public interface CatalogUseCase {
                 book.setAuthor(author);
             if (year != null)
                 book.setYear(year);
+            if (price != null)
+                book.setPrice(price);
             return book;
         }
     }
