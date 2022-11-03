@@ -3,6 +3,7 @@ package ostasp.bookapp.catalog.domain;
 import java.util.List;
 import java.util.Optional;
 
+@Deprecated
 public interface CatalogRepository {
 
     List<Book> findAll();

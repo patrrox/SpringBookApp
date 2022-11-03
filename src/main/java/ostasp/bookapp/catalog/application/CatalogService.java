@@ -3,6 +3,7 @@ package ostasp.bookapp.catalog.application;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import ostasp.bookapp.catalog.application.port.CatalogUseCase;
+import ostasp.bookapp.catalog.db.BookJpaRepository;
 import ostasp.bookapp.catalog.domain.Book;
 import ostasp.bookapp.catalog.domain.CatalogRepository;
 import ostasp.bookapp.uploads.application.port.UploadUseCase;
@@ -17,7 +18,8 @@ import java.util.stream.Collectors;
 @Service
 @AllArgsConstructor
 class CatalogService implements CatalogUseCase {
-    private final CatalogRepository repository;
+    //private final CatalogRepository repository;
+    private final BookJpaRepository repository;
     private final UploadUseCase upload;
 
     @Override
@@ -117,7 +119,8 @@ class CatalogService implements CatalogUseCase {
 
     @Override
     public void removeById(Long id) {
-        repository.removeById(id);
+        //repository.removeById(id);
+        repository.deleteById(id);
     }
 
 }
