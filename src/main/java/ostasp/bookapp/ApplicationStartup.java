@@ -67,7 +67,7 @@ public class ApplicationStartup implements CommandLineRunner {
         PlaceOrderCommand placeOrderCommand = PlaceOrderCommand
                 .builder()
                 .recipient(recipient)
-                .items(Arrays.asList(new OrderItem(panTadeusz, 16), new OrderItem(chlopi, 7)))
+                .items(Arrays.asList(new OrderItem(panTadeusz.getId(), 16), new OrderItem(chlopi.getId(), 7)))
                 .build();
 
         PlaceOrderResponse response = placeOrder.placeOrder(placeOrderCommand);
@@ -75,9 +75,8 @@ public class ApplicationStartup implements CommandLineRunner {
 
 
         //list of all orders
-        queryOrder.findAll().forEach(order -> {
-            System.out.println("GOT ORDER WITH TOTAL PRICE: " + order.totalPrice() + " DETAILS: " + order);
-        });
+        queryOrder.findAll()
+                .forEach(order -> System.out.println("GOT ORDER WITH TOTAL PRICE: " + order.totalPrice() + " DETAILS: " + order));
 
     }
 

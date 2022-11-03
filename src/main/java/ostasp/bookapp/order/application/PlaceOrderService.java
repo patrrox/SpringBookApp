@@ -3,14 +3,14 @@ package ostasp.bookapp.order.application;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import ostasp.bookapp.order.application.port.PlaceOrderUseCase;
+import ostasp.bookapp.order.db.OrderJpaRepository;
 import ostasp.bookapp.order.domain.Order;
-import ostasp.bookapp.order.domain.OrderRepository;
 
 @Service
 @AllArgsConstructor
 class PlaceOrderService implements PlaceOrderUseCase {
 
-    private final OrderRepository repository;
+    private final OrderJpaRepository repository;
 
     @Override
     public PlaceOrderResponse placeOrder(PlaceOrderCommand command) {

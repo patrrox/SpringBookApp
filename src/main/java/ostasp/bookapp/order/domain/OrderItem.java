@@ -1,13 +1,25 @@
 package ostasp.bookapp.order.domain;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import ostasp.bookapp.catalog.domain.Book;
+import lombok.NoArgsConstructor;
+
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
 
 @Data
-@AllArgsConstructor
+@Entity
+@NoArgsConstructor
 public class OrderItem {
 
-    private Book book;
+    @Id
+    @GeneratedValue
+    private Long id;
+    private Long bookId;
     private int quantity;
+
+    public OrderItem(Long bookId, int quantity) {
+        this.bookId = bookId;
+        this.quantity = quantity;
+    }
 }
