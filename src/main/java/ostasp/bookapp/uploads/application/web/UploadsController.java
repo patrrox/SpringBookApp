@@ -27,14 +27,10 @@ public class UploadsController {
 
     @GetMapping("{id}")
     public ResponseEntity<UploadResponse> getUpload(@PathVariable String id) {
-
-
         return upload.getById(id).map(file -> {
             UploadResponse response = new UploadResponse(file.getId(), file.getContentType(), file.getFilename(), file.getCreatedAt());
             return ResponseEntity.ok(response);
         }).orElse(ResponseEntity.notFound().build());
-
-
     }
 
     @GetMapping("{id}/file")
@@ -48,8 +44,6 @@ public class UploadsController {
                     .contentType(MediaType.parseMediaType(file.getContentType()))
                     .body(resource);
         }).orElse(ResponseEntity.notFound().build());
-
-
     }
 
 
