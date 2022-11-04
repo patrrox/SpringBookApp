@@ -5,12 +5,10 @@ import org.springframework.stereotype.Service;
 import ostasp.bookapp.catalog.application.port.CatalogUseCase;
 import ostasp.bookapp.catalog.db.BookJpaRepository;
 import ostasp.bookapp.catalog.domain.Book;
-import ostasp.bookapp.catalog.domain.CatalogRepository;
 import ostasp.bookapp.uploads.application.port.UploadUseCase;
 import ostasp.bookapp.uploads.application.port.UploadUseCase.SaveUploadCommand;
 import ostasp.bookapp.uploads.domain.Upload;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;

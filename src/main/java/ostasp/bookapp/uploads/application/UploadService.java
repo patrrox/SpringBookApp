@@ -1,8 +1,10 @@
 package ostasp.bookapp.uploads.application;
 
+import lombok.AllArgsConstructor;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.stereotype.Service;
 import ostasp.bookapp.uploads.application.port.UploadUseCase;
+import ostasp.bookapp.uploads.db.UploadJpaRepository;
 import ostasp.bookapp.uploads.domain.Upload;
 
 import java.time.LocalDateTime;
@@ -11,28 +13,32 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Service
+@AllArgsConstructor
 public class UploadService implements UploadUseCase {
 
-    private final Map<String, Upload> storage = new ConcurrentHashMap<>();
-
+    private final UploadJpaRepository repository;
 
     @Override
     public Upload save(SaveUploadCommand command) {
-        String newId = RandomStringUtils.randomAlphabetic(8).toLowerCase();
-        Upload upload = new Upload(newId, command.getFile(), command.getContentType(), command.getFilename(), LocalDateTime.now());
+        Upload upload = Upload.builder()
+                .file(command.getFile())
+                .contentType(command.getContentType())
+                .filename(command.getFilename())
+                .build();
 
-        storage.put(upload.getId(),upload);
-        System.out.println("Upload saved: " + upload.getFilename() + "with id: " + newId);
+        Upload savedUpload = repository.save(upload);
+
+        System.out.println("Upload saved: " + upload.getFilename() + " with id: " + savedUpload.getId());
         return upload;
     }
 
     @Override
-    public Optional<Upload> getById(String id) {
-        return Optional.ofNullable(storage.get(id));
+    public Optional<Upload> getById(Long id) {
+        return Optional.of(repository.getReferenceById(id));
     }
 
     @Override
-    public void removeById(String id) {
-        storage.remove(id);
+    public void removeById(Long id) {
+        repository.deleteById(id);
     }
 }

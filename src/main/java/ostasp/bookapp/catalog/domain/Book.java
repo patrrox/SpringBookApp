@@ -24,7 +24,7 @@ public class Book {
     private String author;
     private Integer year;
     private BigDecimal price;
-    private String coverId;
+    private Long coverId;
 
     @CreatedDate
     private LocalDateTime createdAt;
