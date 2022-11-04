@@ -34,7 +34,7 @@ public class UploadService implements UploadUseCase {
 
     @Override
     public Optional<Upload> getById(Long id) {
-        return Optional.of(repository.getReferenceById(id));
+        return repository.findById(id);
     }
 
     @Override

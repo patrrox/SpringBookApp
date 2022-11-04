@@ -6,8 +6,8 @@ import org.springframework.stereotype.Component;
 import ostasp.bookapp.catalog.application.port.CatalogUseCase;
 import ostasp.bookapp.catalog.application.port.CatalogUseCase.*;
 import ostasp.bookapp.catalog.domain.Book;
-import ostasp.bookapp.order.application.port.PlaceOrderUseCase;
-import ostasp.bookapp.order.application.port.PlaceOrderUseCase.*;
+import ostasp.bookapp.order.application.port.ManipulateOrderUseCase;
+import ostasp.bookapp.order.application.port.ManipulateOrderUseCase.*;
 import ostasp.bookapp.order.application.port.QueryOrderUseCase;
 import ostasp.bookapp.order.domain.OrderItem;
 import ostasp.bookapp.order.domain.Recipient;
@@ -20,14 +20,14 @@ import java.util.List;
 public class ApplicationStartup implements CommandLineRunner {
 
     private final CatalogUseCase catalog;
-    private final PlaceOrderUseCase placeOrder;
+    private final ManipulateOrderUseCase placeOrder;
     private final QueryOrderUseCase queryOrder;
     private final String title;
     private final Long limit;
     private final String author;
 
     public ApplicationStartup(CatalogUseCase catalog,
-                              PlaceOrderUseCase placeOrder,
+                              ManipulateOrderUseCase placeOrder,
                               QueryOrderUseCase queryOrder,
                               @Value("${bookaro.catalog.query}") String title,
                               @Value("${bookaro.catalog.limit:3}") Long limit,
