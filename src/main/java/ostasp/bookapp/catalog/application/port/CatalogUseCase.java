@@ -52,7 +52,7 @@ public interface CatalogUseCase {
         BigDecimal price;
 
         public Book toBook(){
-            return new Book (title,author,year,price);
+            return new Book (title,year,price);
         }
     }
 
@@ -69,8 +69,8 @@ public interface CatalogUseCase {
         public Book updateFields(Book book){
             if (title != null)
                 book.setTitle(title);
-            if (author != null)
-                book.setAuthor(author);
+//            if (author != null)
+//                book.setAuthor(author);
             if (year != null)
                 book.setYear(year);
             if (price != null)
