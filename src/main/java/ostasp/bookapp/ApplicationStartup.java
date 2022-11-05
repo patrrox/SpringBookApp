@@ -1,7 +1,6 @@
 package ostasp.bookapp;
 
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 import ostasp.bookapp.catalog.application.port.CatalogUseCase;
@@ -17,7 +16,6 @@ import ostasp.bookapp.order.domain.Recipient;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Set;
 
 @Component
@@ -79,12 +77,12 @@ public class ApplicationStartup implements CommandLineRunner {
     private void initData() {
 
         Author joushua = Author.builder()
-                .name("Joushua")
+                .firstName("Joushua")
                 .lastName("Bloch")
                 .build();
 
         Author neal = Author.builder()
-                .name("Neal")
+                .firstName("Neal")
                 .lastName("Gafter")
                 .build();
 
@@ -110,19 +108,4 @@ public class ApplicationStartup implements CommandLineRunner {
         catalog.addBook(javaPuzzlers);
     }
 
-    private void findAndUpdate() {
-
-        System.out.println("Updating book ...");
-        catalog.findOneByTitleAndAuthor("Pan Tadeusz", "Adam Mickiewicz")
-                .ifPresent(book -> {
-
-                    UpdateBookCommand command = UpdateBookCommand
-                            .builder()
-                            .id(book.getId())
-                            .title("Pan Tadeusz, czyli ostatni zajazd na Litwie")
-                            .build();
-                    UpdateBookResponse response = catalog.updateBook(command);
-                    System.out.println("Updating book result:" + response.isSuccess());
-                });
-    }
 }

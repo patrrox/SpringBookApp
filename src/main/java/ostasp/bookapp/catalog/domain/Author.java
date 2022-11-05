@@ -21,7 +21,7 @@ public class Author {
     @Id
     @GeneratedValue
     private Long id;
-    private String name;
+    private String firstName;
     private String lastName;
 
     @ManyToMany(fetch = FetchType.EAGER, mappedBy = "authors")
