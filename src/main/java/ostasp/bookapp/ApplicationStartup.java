@@ -1,10 +1,13 @@
 package ostasp.bookapp;
 
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 import ostasp.bookapp.catalog.application.port.CatalogUseCase;
 import ostasp.bookapp.catalog.application.port.CatalogUseCase.*;
+import ostasp.bookapp.catalog.db.AuthorJpaRepository;
+import ostasp.bookapp.catalog.domain.Author;
 import ostasp.bookapp.catalog.domain.Book;
 import ostasp.bookapp.order.application.port.ManipulateOrderUseCase;
 import ostasp.bookapp.order.application.port.ManipulateOrderUseCase.*;
@@ -15,41 +18,27 @@ import ostasp.bookapp.order.domain.Recipient;
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 @Component
+@AllArgsConstructor
 public class ApplicationStartup implements CommandLineRunner {
 
     private final CatalogUseCase catalog;
     private final ManipulateOrderUseCase placeOrder;
     private final QueryOrderUseCase queryOrder;
-    private final String title;
-    private final Long limit;
-    private final String author;
+    private final AuthorJpaRepository authorRepository;
 
-    public ApplicationStartup(CatalogUseCase catalog,
-                              ManipulateOrderUseCase placeOrder,
-                              QueryOrderUseCase queryOrder,
-                              @Value("${bookaro.catalog.query}") String title,
-                              @Value("${bookaro.catalog.limit:3}") Long limit,
-                              @Value("${bookaro.catalog.author}") String author) {
-        this.catalog = catalog;
-        this.placeOrder = placeOrder;
-        this.queryOrder = queryOrder;
-        this.title = title;
-        this.limit = limit;
-        this.author = author;
-    }
 
     @Override
     public void run(String... args) throws Exception {
         initData();
-        searchCatalog();
         placeOrder();
     }
 
     private void placeOrder() {
-        Book panTadeusz = catalog.findOneByTitle("Pan Tadeusz").orElseThrow(() -> new IllegalStateException("Cannot find a book"));
-        Book chlopi = catalog.findOneByTitle("Chłopi").orElseThrow(() -> new IllegalStateException("Cannot find a book"));
+        Book effectiveJava = catalog.findOneByTitle("Effective Java").orElseThrow(() -> new IllegalStateException("Cannot find a book"));
+        Book puzzlers = catalog.findOneByTitle("Java Puzzlers").orElseThrow(() -> new IllegalStateException("Cannot find a book"));
 
         //create recipent
 
@@ -67,7 +56,7 @@ public class ApplicationStartup implements CommandLineRunner {
         PlaceOrderCommand placeOrderCommand = PlaceOrderCommand
                 .builder()
                 .recipient(recipient)
-                .items(Arrays.asList(new OrderItem(panTadeusz.getId(), 16), new OrderItem(chlopi.getId(), 7)))
+                .items(Arrays.asList(new OrderItem(effectiveJava.getId(), 16), new OrderItem(puzzlers.getId(), 7)))
                 .build();
 
         PlaceOrderResponse response = placeOrder.placeOrder(placeOrderCommand);
@@ -80,23 +69,45 @@ public class ApplicationStartup implements CommandLineRunner {
 
     }
 
-    private void searchCatalog() {
-        findByTitle();
-        findAndUpdate();
-        findByTitle();
-    }
 
-    private void findByTitle() {
-        List<Book> booksByTitle = catalog.findByTitle(title);
-        booksByTitle.forEach(System.out::println);
-    }
+//    private void findByTitle() {
+//        List<Book> booksByTitle = catalog.findByTitle(title);
+//        booksByTitle.forEach(System.out::println);
+//    }
 
 
     private void initData() {
-        catalog.addBook(new CreateBookCommand("Pan Tadeusz", "Adam Mickiewicz", 1834, BigDecimal.valueOf(25)));
-        catalog.addBook(new CreateBookCommand("Ogniem i Mieczem", "Henryk Sienkiewicz", 1884, BigDecimal.valueOf(25)));
-        catalog.addBook(new CreateBookCommand("Chłopi", "Władysaw Reymont", 1884, BigDecimal.valueOf(25)));
-        catalog.addBook(new CreateBookCommand("Pan Wołodyjowski", "Henryk Sienkiewicz", 1884, BigDecimal.valueOf(25)));
+
+        Author joushua = Author.builder()
+                .name("Joushua")
+                .lastName("Bloch")
+                .build();
+
+        Author neal = Author.builder()
+                .name("Neal")
+                .lastName("Gafter")
+                .build();
+
+        authorRepository.save(joushua);
+        authorRepository.save(neal);
+
+        CreateBookCommand effectiveJava = new CreateBookCommand(
+                "Effective Java",
+                Set.of(joushua.getId()),
+                2005,
+                new BigDecimal("79.00")
+        );
+
+        CreateBookCommand javaPuzzlers = new CreateBookCommand(
+                "Java Puzzlers",
+                Set.of(joushua.getId(), neal.getId()),
+                2018,
+                new BigDecimal("99.00")
+        );
+
+
+        catalog.addBook(effectiveJava);
+        catalog.addBook(javaPuzzlers);
     }
 
     private void findAndUpdate() {

@@ -5,6 +5,7 @@ import lombok.Data;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
@@ -19,6 +20,7 @@ import ostasp.bookapp.catalog.domain.Book;
 import javax.validation.Valid;
 import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -59,18 +61,18 @@ public class CatalogController {
 
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.ACCEPTED)
-    public void updateBook(@PathVariable Long id, @RequestBody RestBookCommand command){
+    public void updateBook(@PathVariable Long id, @RequestBody RestBookCommand command) {
         UpdateBookResponse response = catalog.updateBook(command.toUpdateBookCommand(id));
 
-        if(!response.isSuccess()){
+        if (!response.isSuccess()) {
             String message = String.join(", ", response.getErrors());
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,message);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, message);
         }
     }
 
     @PutMapping(value = "/{id}/cover", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     @ResponseStatus(HttpStatus.ACCEPTED)
-    public void addBookCover(@PathVariable Long id, @RequestParam("file")MultipartFile file) throws IOException {
+    public void addBookCover(@PathVariable Long id, @RequestParam("file") MultipartFile file) throws IOException {
         System.out.println("Got file: " + file.getOriginalFilename());
         catalog.updateBookCover(new UpdateBookCoverCommand(
                 id,
@@ -83,14 +85,14 @@ public class CatalogController {
 
     @DeleteMapping("/{id}/cover")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void removeBookCover(@PathVariable Long id){
+    public void removeBookCover(@PathVariable Long id) {
         catalog.removeBookCover(id);
     }
 
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<?> addBook(@Valid @RequestBody RestBookCommand command){
+    public ResponseEntity<?> addBook(@Valid @RequestBody RestBookCommand command) {
         Book savedBook = catalog.addBook(command.toCreateCommand());
         URI uri = ServletUriComponentsBuilder.fromCurrentRequestUri().path("/" + savedBook.getId().toString()).build().toUri();
         return ResponseEntity.created(uri).build();
@@ -98,18 +100,18 @@ public class CatalogController {
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteById (@PathVariable Long id){
-     catalog.removeById(id);
+    public void deleteById(@PathVariable Long id) {
+        catalog.removeById(id);
     }
-
 
 
     @Data
     private static class RestBookCommand {
         @NotBlank
         private String title;
-        @NotBlank
-        private String author;
+        @NotEmpty
+        private Set<Long> authors;
+
         @NotNull
         private Integer year;
 
@@ -117,12 +119,12 @@ public class CatalogController {
         @DecimalMin("0.00")
         private BigDecimal price;
 
-        CreateBookCommand toCreateCommand(){
-            return new CreateBookCommand(title,author,year,price);
+        CreateBookCommand toCreateCommand() {
+            return new CreateBookCommand(title, authors, year, price);
         }
 
-        UpdateBookCommand toUpdateBookCommand(Long id){
-            return new UpdateBookCommand(id,title,author,year,price);
+        UpdateBookCommand toUpdateBookCommand(Long id) {
+            return new UpdateBookCommand(id, title, authors, year, price);
         }
     }
 

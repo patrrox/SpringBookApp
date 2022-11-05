@@ -1,5 +1,6 @@
 package ostasp.bookapp.catalog.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -13,7 +14,7 @@ import java.util.Set;
 
 @Getter
 @Setter
-@ToString
+@ToString (exclude = "authors")
 @RequiredArgsConstructor
 @Entity
 @EntityListeners(AuditingEntityListener.class)
@@ -29,6 +30,7 @@ public class Book {
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable
+    @JsonIgnoreProperties("books")
     private Set<Author> authors;
 
     @CreatedDate
