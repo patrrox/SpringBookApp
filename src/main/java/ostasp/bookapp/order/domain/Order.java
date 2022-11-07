@@ -23,7 +23,7 @@ import java.util.List;
 public class Order extends BaseEntity {
 
     @Builder.Default
-    @Enumerated (EnumType.STRING)
+    @Enumerated(EnumType.STRING)
     private OrderStatus status = OrderStatus.NEW;
 
 
@@ -31,7 +31,7 @@ public class Order extends BaseEntity {
     @JoinColumn(name = "order_id")
     private List<OrderItem> items;
 
-    @ManyToOne (cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.EAGER)
     @JoinColumn(name = "recipient_id")
     private Recipient recipient;
 

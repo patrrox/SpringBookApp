@@ -28,7 +28,7 @@ public class Book extends BaseEntity {
     private BigDecimal price;
     private Long coverId;
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable
     @JsonIgnoreProperties("books")
     private Set<Author> authors = new HashSet<>();
@@ -54,7 +54,7 @@ public class Book extends BaseEntity {
         author.getBooks().remove(this);
     }
 
-    public void removeAuthors(){
+    public void removeAuthors() {
         authors.forEach(author -> author.getBooks().remove(this));
         authors.clear();
     }
