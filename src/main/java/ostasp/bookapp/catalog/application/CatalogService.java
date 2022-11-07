@@ -38,7 +38,7 @@ class vice implements CatalogUseCase {
 
     @Override
     public List<Book> findByAuthor(String author) {
-    return bookRepository.findByAuthor(author);
+        return bookRepository.findByAuthor(author);
     }
 
     @Override
@@ -48,7 +48,7 @@ class vice implements CatalogUseCase {
 
     @Override
     public List<Book> findByTitleAndAuthor(String title, String author) {
-        return bookRepository.findByTitleAndAuthor(title,author);
+        return bookRepository.findByTitleAndAuthor(title, author);
     }
 
 
@@ -133,7 +133,9 @@ class vice implements CatalogUseCase {
 
     @Override
     public void removeById(Long id) {
-        //repository.removeById(id);
+        Book book = bookRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Book not found with ID:" + id));
+        book.removeAuthors();
+
         bookRepository.deleteById(id);
     }
 

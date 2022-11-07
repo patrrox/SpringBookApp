@@ -2,22 +2,21 @@ package ostasp.bookapp.order.domain;
 
 
 import lombok.*;
+import ostasp.bookapp.jpa.BaseEntity;
 
 import javax.persistence.Embeddable;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 
-@Data
+@Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-public class Recipient {
+public class Recipient extends BaseEntity {
 
-    @Id
-    @GeneratedValue
-    private Long id;
     private String name;
     private String phone;
     private String street;
