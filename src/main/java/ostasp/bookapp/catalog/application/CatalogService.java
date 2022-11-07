@@ -12,6 +12,7 @@ import ostasp.bookapp.uploads.application.port.UploadUseCase;
 import ostasp.bookapp.uploads.application.port.UploadUseCase.SaveUploadCommand;
 import ostasp.bookapp.uploads.domain.Upload;
 
+import javax.transaction.Transactional;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -53,6 +54,7 @@ class vice implements CatalogUseCase {
 
 
     @Override
+    @Transactional
     public Book addBook(CreateBookCommand createBookCommand) {
         Book book = toBook(createBookCommand);
         return bookRepository.save(book);
