@@ -3,6 +3,7 @@ package ostasp.bookapp.catalog.application;
 import lombok.AllArgsConstructor;
 import org.hibernate.sql.Update;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ostasp.bookapp.catalog.application.port.CatalogUseCase;
 import ostasp.bookapp.catalog.db.AuthorJpaRepository;
 import ostasp.bookapp.catalog.db.BookJpaRepository;
@@ -12,7 +13,6 @@ import ostasp.bookapp.uploads.application.port.UploadUseCase;
 import ostasp.bookapp.uploads.application.port.UploadUseCase.SaveUploadCommand;
 import ostasp.bookapp.uploads.domain.Upload;
 
-import javax.transaction.Transactional;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -44,7 +44,7 @@ class vice implements CatalogUseCase {
 
     @Override
     public List<Book> findAll() {
-        return bookRepository.findAll();
+        return bookRepository.findAllEager();
     }
 
     @Override
@@ -82,11 +82,11 @@ class vice implements CatalogUseCase {
     }
 
     @Override
+    @Transactional
     public UpdateBookResponse updateBook(UpdateBookCommand command) {
         return bookRepository.findById(command.getId())
                 .map(book -> {
-                    Book updatedBook = updateFields(command, book);
-                    bookRepository.save(updatedBook);
+                    updateFields(command, book);
                     return UpdateBookResponse.SUCCESS;
                 })
                 .orElseGet(() -> new UpdateBookResponse(false, List.of("Book not found with ID " + command.getId())));

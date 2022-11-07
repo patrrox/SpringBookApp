@@ -15,9 +15,8 @@ import java.util.Set;
 @Setter
 @Entity
 @ToString(exclude = "books")
-@NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@NoArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
 public class Author extends BaseEntity {
 
@@ -31,6 +30,10 @@ public class Author extends BaseEntity {
     @CreatedDate
     private LocalDateTime createdAt;
 
+    public Author(String firstName, String lastName) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+    }
 
     public void addBook(Book book) {
         books.add(book);

@@ -7,9 +7,11 @@ import ostasp.bookapp.catalog.domain.Book;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 public interface BookJpaRepository extends JpaRepository<Book, Long> {
+
+    @Query("SELECT b FROM Book b JOIN FETCH b.authors")
+    List<Book> findAllEager();
 
     List<Book> findByAuthors_firstNameContainsIgnoreCaseOrAuthors_lastNameContainsIgnoreCase(String firstName, String lastName);
 

@@ -1,15 +1,15 @@
-package ostasp.bookapp;
+package ostasp.bookapp.catalog.application.web;
 
 import lombok.AllArgsConstructor;
-import org.springframework.boot.CommandLineRunner;
-import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import ostasp.bookapp.catalog.application.port.CatalogUseCase;
-import ostasp.bookapp.catalog.application.port.CatalogUseCase.*;
 import ostasp.bookapp.catalog.db.AuthorJpaRepository;
 import ostasp.bookapp.catalog.domain.Author;
 import ostasp.bookapp.catalog.domain.Book;
 import ostasp.bookapp.order.application.port.ManipulateOrderUseCase;
-import ostasp.bookapp.order.application.port.ManipulateOrderUseCase.*;
 import ostasp.bookapp.order.application.port.QueryOrderUseCase;
 import ostasp.bookapp.order.domain.OrderItem;
 import ostasp.bookapp.order.domain.Recipient;
@@ -18,9 +18,10 @@ import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Set;
 
-@Component
+@RestController
+@RequestMapping("/admin")
 @AllArgsConstructor
-public class ApplicationStartup implements CommandLineRunner {
+public class AdminController {
 
     private final CatalogUseCase catalog;
     private final ManipulateOrderUseCase placeOrder;
@@ -28,11 +29,14 @@ public class ApplicationStartup implements CommandLineRunner {
     private final AuthorJpaRepository authorRepository;
 
 
-    @Override
-    public void run(String... args) throws Exception {
+    @PostMapping("/data")
+    @Transactional
+    public void initialize() {
         initData();
         placeOrder();
     }
+
+
 
     private void placeOrder() {
         Book effectiveJava = catalog.findOneByTitle("Effective Java").orElseThrow(() -> new IllegalStateException("Cannot find a book"));
@@ -51,13 +55,13 @@ public class ApplicationStartup implements CommandLineRunner {
                 .build();
 
         //place order command
-        PlaceOrderCommand placeOrderCommand = PlaceOrderCommand
+        ManipulateOrderUseCase.PlaceOrderCommand placeOrderCommand = ManipulateOrderUseCase.PlaceOrderCommand
                 .builder()
                 .recipient(recipient)
                 .items(Arrays.asList(new OrderItem(effectiveJava.getId(), 16), new OrderItem(puzzlers.getId(), 7)))
                 .build();
 
-        PlaceOrderResponse response = placeOrder.placeOrder(placeOrderCommand);
+        ManipulateOrderUseCase.PlaceOrderResponse response = placeOrder.placeOrder(placeOrderCommand);
         System.out.println("Created ORDER with id: " + response.getOrderId());
 
 
@@ -67,38 +71,23 @@ public class ApplicationStartup implements CommandLineRunner {
 
     }
 
-
-//    private void findByTitle() {
-//        List<Book> booksByTitle = catalog.findByTitle(title);
-//        booksByTitle.forEach(System.out::println);
-//    }
-
-
     private void initData() {
 
-        Author joushua = Author.builder()
-                .firstName("Joushua")
-                .lastName("Bloch")
-                .build();
-
-        Author neal = Author.builder()
-                .firstName("Neal")
-                .lastName("Gafter")
-                .build();
-
-        authorRepository.save(joushua);
+        Author joshua = new Author("Joshua", "Bloch");
+        Author neal = new Author("Neal", "Gafter");
+        authorRepository.save(joshua);
         authorRepository.save(neal);
 
-        CreateBookCommand effectiveJava = new CreateBookCommand(
+        CatalogUseCase.CreateBookCommand effectiveJava = new CatalogUseCase.CreateBookCommand(
                 "Effective Java",
-                Set.of(joushua.getId()),
+                Set.of(joshua.getId()),
                 2005,
                 new BigDecimal("79.00")
         );
 
-        CreateBookCommand javaPuzzlers = new CreateBookCommand(
+        CatalogUseCase.CreateBookCommand javaPuzzlers = new CatalogUseCase.CreateBookCommand(
                 "Java Puzzlers",
-                Set.of(joushua.getId(), neal.getId()),
+                Set.of(joshua.getId(), neal.getId()),
                 2018,
                 new BigDecimal("99.00")
         );
