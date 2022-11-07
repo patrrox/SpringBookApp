@@ -25,7 +25,6 @@ public interface BookJpaRepository extends JpaRepository<Book, Long> {
 
     Optional<Book> findOneByTitleContainsIgnoreCase(String title);
 
-
     @Query("SELECT b " +
             " FROM Book b JOIN b.authors a " +
             " WHERE " +
@@ -36,16 +35,5 @@ public interface BookJpaRepository extends JpaRepository<Book, Long> {
             " OR LOWER (a.lastName) LIKE LOWER(CONCAT('%',:author,'%')) " +
             " ) ")
     List<Book> findByTitleAndAuthor(@Param("title") String title, @Param("author") String author);
-
-//    @Override
-//    public List<Book> findByTitleAndAuthor(String title, String author) {
-//        return bookRepository
-//                .findAll()
-//                .stream()
-////                .filter(book -> book.getAuthor().toLowerCase().contains(author.toLowerCase()))
-//                .filter(book -> book.getTitle().toLowerCase().contains(title.toLowerCase()))
-//                .collect(Collectors.toList());
-//    }
-
 
 }
