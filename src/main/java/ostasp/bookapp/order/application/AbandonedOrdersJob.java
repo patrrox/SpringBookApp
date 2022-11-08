@@ -9,21 +9,23 @@ import ostasp.bookapp.order.db.OrderJpaRepository;
 import ostasp.bookapp.order.domain.Order;
 import ostasp.bookapp.order.domain.OrderStatus;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Component
 @AllArgsConstructor
 public class AbandonedOrdersJob {
-
     private final OrderJpaRepository repository;
     private final ManipulateOrderUseCase orderUseCase;
+    private final OrdersProperties properties;
 
-    @Scheduled(fixedRate = 60_000)
+    @Scheduled(cron = "${app.orders.abandon-cron}")
     @Transactional
     public void run(){
-        LocalDateTime timeStamp = LocalDateTime.now().minusMinutes(5);
-        List<Order> orders = repository.findByStatusAndCreatedAtLessThanEqual(OrderStatus.NEW, timeStamp);
+        Duration paymentPeriod = properties.getPaymentPeriod();
+        LocalDateTime olderThan = LocalDateTime.now().minus(paymentPeriod);
+        List<Order> orders = repository.findByStatusAndCreatedAtLessThanEqual(OrderStatus.NEW, olderThan);
         System.out.println("Found orders to be abandoned: " + orders.size());
         orders.forEach(order -> orderUseCase.updateOrderStatus(order.getId(),OrderStatus.ABANDONED));
     }
