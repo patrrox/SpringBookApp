@@ -8,10 +8,7 @@ import ostasp.bookapp.catalog.domain.Book;
 import ostasp.bookapp.order.application.port.ManipulateOrderUseCase;
 import ostasp.bookapp.order.db.OrderJpaRepository;
 import ostasp.bookapp.order.db.RecipientJpaRepository;
-import ostasp.bookapp.order.domain.Order;
-import ostasp.bookapp.order.domain.OrderItem;
-import ostasp.bookapp.order.domain.OrderStatus;
-import ostasp.bookapp.order.domain.Recipient;
+import ostasp.bookapp.order.domain.*;
 
 import java.util.List;
 import java.util.Set;
@@ -38,17 +35,17 @@ class ManipulateOrderService implements ManipulateOrderUseCase {
                 .items(items)
                 .build();
         Order save = repository.save(order);
-        bookRepository.saveAll(updateBooks(items));
+        bookRepository.saveAll(reduceBooks(items));
         return PlaceOrderResponse.SUCCESS(save.getId());
     }
 
-    private  Recipient getOrCreateRecipient(Recipient recipient) {
+    private Recipient getOrCreateRecipient(Recipient recipient) {
         return recipientRepository
                 .findByEmailIgnoreCase(recipient.getEmail())
                 .orElse(recipient);
     }
 
-    private Set<Book> updateBooks(Set<OrderItem> items) {
+    private Set<Book> reduceBooks(Set<OrderItem> items) {
         return items.stream()
                 .map(item -> {
                     Book book = item.getBook();
@@ -78,11 +75,23 @@ class ManipulateOrderService implements ManipulateOrderUseCase {
         return repository
                 .findById(id)
                 .map(order -> {
-                    order.updateStatus(status);
+                    UpdateStatusResult result = order.updateStatus(status);
+                    if (result.isRevoked()) {
+                        bookRepository.saveAll(revokeBooks(order.getItems()));
+                    }
                     repository.save(order);
                     return UpdateOrderStatusResponse.SUCCESS;
                 })
                 .orElseGet(() -> new UpdateOrderStatusResponse(false, List.of("Order not found with id: " + id)));
+    }
+
+    private Set<Book> revokeBooks(Set<OrderItem> items) {
+        return items.stream()
+                .map(item -> {
+                    Book book = item.getBook();
+                    book.setAvailable(book.getAvailable() + item.getQuantity());
+                    return book;
+                }).collect(Collectors.toSet());
     }
 
 
