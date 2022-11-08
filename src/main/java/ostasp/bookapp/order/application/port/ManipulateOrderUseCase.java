@@ -1,9 +1,6 @@
 package ostasp.bookapp.order.application.port;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Singular;
-import lombok.Value;
+import lombok.*;
 import ostasp.bookapp.order.domain.OrderItem;
 import ostasp.bookapp.order.domain.OrderStatus;
 import ostasp.bookapp.order.domain.Recipient;
@@ -24,9 +21,16 @@ public interface ManipulateOrderUseCase {
     @Value
     @AllArgsConstructor
     class PlaceOrderCommand {
-        List<OrderItem> items;
+        List<OrderItemCommand> items;
         Recipient recipient;
     }
+
+    @Value
+     class OrderItemCommand {
+        Long bookId;
+        int quantity;
+    }
+
 
     @Value
     class PlaceOrderResponse  {

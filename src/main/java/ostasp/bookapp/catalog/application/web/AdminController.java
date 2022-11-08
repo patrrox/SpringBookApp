@@ -6,10 +6,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ostasp.bookapp.catalog.application.port.CatalogUseCase;
+import ostasp.bookapp.catalog.application.port.CatalogUseCase.CreateBookCommand;
 import ostasp.bookapp.catalog.db.AuthorJpaRepository;
 import ostasp.bookapp.catalog.domain.Author;
 import ostasp.bookapp.catalog.domain.Book;
 import ostasp.bookapp.order.application.port.ManipulateOrderUseCase;
+import ostasp.bookapp.order.application.port.ManipulateOrderUseCase.OrderItemCommand;
 import ostasp.bookapp.order.application.port.QueryOrderUseCase;
 import ostasp.bookapp.order.domain.OrderItem;
 import ostasp.bookapp.order.domain.Recipient;
@@ -57,7 +59,7 @@ public class AdminController {
         ManipulateOrderUseCase.PlaceOrderCommand placeOrderCommand = ManipulateOrderUseCase.PlaceOrderCommand
                 .builder()
                 .recipient(recipient)
-                .items(Arrays.asList(new OrderItem(effectiveJava.getId(), 16), new OrderItem(puzzlers.getId(), 7)))
+                .items(Arrays.asList(new OrderItemCommand(effectiveJava.getId(), 16), new OrderItemCommand(puzzlers.getId(), 7)))
                 .build();
 
         ManipulateOrderUseCase.PlaceOrderResponse response = placeOrder.placeOrder(placeOrderCommand);
@@ -77,18 +79,20 @@ public class AdminController {
         authorRepository.save(joshua);
         authorRepository.save(neal);
 
-        CatalogUseCase.CreateBookCommand effectiveJava = new CatalogUseCase.CreateBookCommand(
+        CreateBookCommand effectiveJava = new CreateBookCommand(
                 "Effective Java",
                 Set.of(joshua.getId()),
                 2005,
-                new BigDecimal("79.00")
+                new BigDecimal("79.00"),
+                50L
         );
 
-        CatalogUseCase.CreateBookCommand javaPuzzlers = new CatalogUseCase.CreateBookCommand(
+        CreateBookCommand javaPuzzlers = new CreateBookCommand(
                 "Java Puzzlers",
                 Set.of(joshua.getId(), neal.getId()),
                 2018,
-                new BigDecimal("99.00")
+                new BigDecimal("99.00"),
+                50L
         );
 
 
