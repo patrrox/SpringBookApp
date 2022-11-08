@@ -13,7 +13,7 @@ public interface BookJpaRepository extends JpaRepository<Book, Long> {
     @Query("SELECT DISTINCT b FROM Book b JOIN FETCH b.authors")
     List<Book> findAllEager();
 
-    List<Book> findByAuthors_firstNameContainsIgnoreCaseOrAuthors_lastNameContainsIgnoreCase(String firstName, String lastName);
+    List<Book> findByAuthors_nameContainsIgnoreCase(String name);
 
     List<Book> findByTitleStartsWithIgnoreCase(String title);
 
@@ -21,8 +21,7 @@ public interface BookJpaRepository extends JpaRepository<Book, Long> {
             "SELECT b " +
                     " FROM Book b JOIN b.authors a " +
                     " WHERE " +
-                    " LOWER (a.firstName) LIKE LOWER(CONCAT('%',:name,'%')) " +
-                    " OR LOWER (a.lastName) LIKE LOWER(CONCAT('%',:name,'%'))")
+                    " LOWER (a.name) LIKE LOWER(CONCAT('%',:name,'%')) ")
     List<Book> findByAuthor(@Param("name") String name);
 
     Optional<Book> findOneByTitleContainsIgnoreCase(String title);
@@ -32,10 +31,7 @@ public interface BookJpaRepository extends JpaRepository<Book, Long> {
             " WHERE " +
             " LOWER(b.title) LIKE LOWER(CONCAT('%',:title,'%')) " +
             " AND " +
-            " (" +
-            " LOWER (a.firstName) LIKE LOWER(CONCAT('%',:author,'%')) " +
-            " OR LOWER (a.lastName) LIKE LOWER(CONCAT('%',:author,'%')) " +
-            " ) ")
+            " LOWER (a.name) LIKE LOWER(CONCAT('%',:author,'%')) " )
     List<Book> findByTitleAndAuthor(@Param("title") String title, @Param("author") String author);
 
 }

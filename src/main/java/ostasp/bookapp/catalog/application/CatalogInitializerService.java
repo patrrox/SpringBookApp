@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,6 +17,7 @@ import ostasp.bookapp.catalog.application.port.CatalogUseCase.CreateBookCommand;
 import ostasp.bookapp.catalog.db.AuthorJpaRepository;
 import ostasp.bookapp.catalog.domain.Author;
 import ostasp.bookapp.catalog.domain.Book;
+import ostasp.bookapp.jpa.BaseEntity;
 import ostasp.bookapp.order.application.port.ManipulateOrderUseCase;
 import ostasp.bookapp.order.application.port.QueryOrderUseCase;
 import ostasp.bookapp.order.domain.Recipient;
@@ -25,7 +27,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.math.BigDecimal;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -45,33 +49,45 @@ public class CatalogInitializerService implements CatalogInitializerUseCase {
     }
 
     private void initData() {
-        ClassPathResource resource = new ClassPathResource("books.csv");
-
-
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(resource.getInputStream()))) {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(new ClassPathResource("books.csv").getInputStream()))) {
             CsvToBean<CsvBook> build = new CsvToBeanBuilder<CsvBook>(reader)
                     .withType(CsvBook.class)
                     .withIgnoreLeadingWhiteSpace(true)
                     .build();
-            build.parse().forEach(this::initBook);
 
+            build.stream().forEach(this::initBook);
         } catch (IOException e) {
             throw new IllegalStateException("Failed to parse CSV file", e);
         }
-
     }
 
     private void initBook(CsvBook csvBook) {
         //parse authors
-        CreateBookCommand command = new CreateBookCommand(csvBook.title, Set.of(), csvBook.year, csvBook.amount, 50L);
+
+
+        Set<Long> authors = Arrays.stream(csvBook.authors.split(","))
+                .filter(StringUtils::isNotBlank)
+                .map(String::trim)
+                .map(this::getOrCreateAuthor)
+                .map(BaseEntity::getId)
+                .collect(Collectors.toSet());
+
+
+        CreateBookCommand command = new CreateBookCommand(csvBook.title, authors, csvBook.year, csvBook.amount, 50L);
         catalog.addBook(command);
         //upload thumbnail
+    }
+
+    private Author getOrCreateAuthor(String name) {
+        return authorRepository
+                .findByNameIgnoreCase(name)
+                .orElseGet(() -> authorRepository.save(new Author(name)));
     }
 
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
-    private static class CsvBook {
+    public static class CsvBook {
         @CsvBindByName
         private String title;
         @CsvBindByName
