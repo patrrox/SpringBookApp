@@ -16,6 +16,6 @@ public class AuthorService implements AuthorUseCase {
 
     @Override
     public List<Author> findAll() {
-        return repository.findAll();
+        return repository.findAllEager();
     }
 }
