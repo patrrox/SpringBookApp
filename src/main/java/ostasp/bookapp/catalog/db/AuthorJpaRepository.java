@@ -8,6 +8,6 @@ import java.util.List;
 
 public interface AuthorJpaRepository extends JpaRepository<Author, Long> {
 
-    @Query("SELECT a FROM Author a JOIN FETCH a.books")
+    @Query("SELECT DISTINCT a FROM Author a JOIN FETCH a.books")
     List<Author> findAllEager();
 }

@@ -36,7 +36,7 @@ class ManipulateOrderService implements ManipulateOrderUseCase {
         return repository
                 .findById(id)
                 .map(order ->{
-                    order.setStatus(status);
+                    order.updateStatus(status);
                     repository.save(order);
                     return UpdateOrderStatusResponse.SUCCESS;
                 })
