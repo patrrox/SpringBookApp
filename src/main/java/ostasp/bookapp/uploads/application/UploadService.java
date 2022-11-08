@@ -1,6 +1,7 @@
 package ostasp.bookapp.uploads.application;
 
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ostasp.bookapp.uploads.application.port.UploadUseCase;
 import ostasp.bookapp.uploads.db.UploadJpaRepository;
@@ -8,6 +9,7 @@ import ostasp.bookapp.uploads.domain.Upload;
 
 import java.util.Optional;
 
+@Slf4j
 @Service
 @AllArgsConstructor
 public class UploadService implements UploadUseCase {
@@ -24,7 +26,7 @@ public class UploadService implements UploadUseCase {
 
         Upload savedUpload = repository.save(upload);
 
-        System.out.println("Upload saved: " + upload.getFilename() + " with id: " + savedUpload.getId());
+        log.info("Upload saved: " + upload.getFilename() + " with id: " + savedUpload.getId());
         return upload;
     }
 
