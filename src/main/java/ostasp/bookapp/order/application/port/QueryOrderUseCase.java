@@ -1,8 +1,6 @@
 package ostasp.bookapp.order.application.port;
 
 import lombok.Value;
-import ostasp.bookapp.catalog.domain.Book;
-import ostasp.bookapp.order.domain.Order;
 import ostasp.bookapp.order.domain.OrderItem;
 import ostasp.bookapp.order.domain.OrderStatus;
 import ostasp.bookapp.order.domain.Recipient;

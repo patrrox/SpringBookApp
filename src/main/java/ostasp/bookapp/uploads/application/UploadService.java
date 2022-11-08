@@ -1,16 +1,12 @@
 package ostasp.bookapp.uploads.application;
 
 import lombok.AllArgsConstructor;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.stereotype.Service;
 import ostasp.bookapp.uploads.application.port.UploadUseCase;
 import ostasp.bookapp.uploads.db.UploadJpaRepository;
 import ostasp.bookapp.uploads.domain.Upload;
 
-import java.time.LocalDateTime;
-import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 @AllArgsConstructor

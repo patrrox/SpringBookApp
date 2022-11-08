@@ -13,7 +13,6 @@ import ostasp.bookapp.catalog.domain.Book;
 import ostasp.bookapp.order.application.port.ManipulateOrderUseCase;
 import ostasp.bookapp.order.application.port.ManipulateOrderUseCase.OrderItemCommand;
 import ostasp.bookapp.order.application.port.QueryOrderUseCase;
-import ostasp.bookapp.order.domain.OrderItem;
 import ostasp.bookapp.order.domain.Recipient;
 
 import java.math.BigDecimal;

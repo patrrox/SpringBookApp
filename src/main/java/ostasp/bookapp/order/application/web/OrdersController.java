@@ -15,12 +15,9 @@ import ostasp.bookapp.order.application.port.QueryOrderUseCase;
 
 import java.net.URI;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import ostasp.bookapp.order.application.port.QueryOrderUseCase.*;
-import ostasp.bookapp.order.domain.OrderItem;
 import ostasp.bookapp.order.domain.OrderStatus;
-import ostasp.bookapp.order.domain.Recipient;
 
 
 import static org.springframework.http.HttpStatus.*;

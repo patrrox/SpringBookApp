@@ -4,10 +4,8 @@ package ostasp.bookapp.order.domain;
 import lombok.*;
 import ostasp.bookapp.jpa.BaseEntity;
 
-import javax.persistence.Embeddable;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+
 
 @Getter
 @Setter

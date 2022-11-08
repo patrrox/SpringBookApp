@@ -1,7 +1,6 @@
 package ostasp.bookapp.catalog.application;
 
 import lombok.AllArgsConstructor;
-import org.hibernate.sql.Update;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ostasp.bookapp.catalog.application.port.CatalogUseCase;
@@ -13,7 +12,6 @@ import ostasp.bookapp.uploads.application.port.UploadUseCase;
 import ostasp.bookapp.uploads.application.port.UploadUseCase.SaveUploadCommand;
 import ostasp.bookapp.uploads.domain.Upload;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;

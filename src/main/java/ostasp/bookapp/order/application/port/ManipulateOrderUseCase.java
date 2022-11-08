@@ -1,7 +1,6 @@
 package ostasp.bookapp.order.application.port;
 
 import lombok.*;
-import ostasp.bookapp.order.domain.OrderItem;
 import ostasp.bookapp.order.domain.OrderStatus;
 import ostasp.bookapp.order.domain.Recipient;
 
@@ -15,7 +14,7 @@ public interface ManipulateOrderUseCase {
 
     void deleteOrderById(Long id);
 
-    UpdateOrderStatusResponse updateOrderStatus (Long id, OrderStatus status);
+    UpdateOrderStatusResponse updateOrderStatus(Long id, OrderStatus status);
 
     @Builder
     @Value
@@ -26,14 +25,14 @@ public interface ManipulateOrderUseCase {
     }
 
     @Value
-     class OrderItemCommand {
+    class OrderItemCommand {
         Long bookId;
         int quantity;
     }
 
 
     @Value
-    class PlaceOrderResponse  {
+    class PlaceOrderResponse {
         boolean success;
         Long orderId;
         List<String> errors;
@@ -49,9 +48,9 @@ public interface ManipulateOrderUseCase {
 
     @Value
     @AllArgsConstructor
-    class UpdateOrderStatusResponse{
+    class UpdateOrderStatusResponse {
         boolean success;
         List<String> errors;
-        public static final UpdateOrderStatusResponse SUCCESS = new UpdateOrderStatusResponse(true,Collections.emptyList());
+        public static final UpdateOrderStatusResponse SUCCESS = new UpdateOrderStatusResponse(true, Collections.emptyList());
     }
 }

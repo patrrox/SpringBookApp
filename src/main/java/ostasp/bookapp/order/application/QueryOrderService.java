@@ -4,11 +4,9 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ostasp.bookapp.catalog.db.BookJpaRepository;
-import ostasp.bookapp.catalog.domain.Book;
 import ostasp.bookapp.order.application.port.QueryOrderUseCase;
 import ostasp.bookapp.order.db.OrderJpaRepository;
 import ostasp.bookapp.order.domain.Order;
-import ostasp.bookapp.order.domain.OrderItem;
 
 import java.util.List;
 import java.util.Optional;
