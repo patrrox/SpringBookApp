@@ -7,9 +7,11 @@ import ostasp.bookapp.catalog.db.BookJpaRepository;
 import ostasp.bookapp.catalog.domain.Book;
 import ostasp.bookapp.order.application.port.ManipulateOrderUseCase;
 import ostasp.bookapp.order.db.OrderJpaRepository;
+import ostasp.bookapp.order.db.RecipientJpaRepository;
 import ostasp.bookapp.order.domain.Order;
 import ostasp.bookapp.order.domain.OrderItem;
 import ostasp.bookapp.order.domain.OrderStatus;
+import ostasp.bookapp.order.domain.Recipient;
 
 import java.util.List;
 import java.util.Set;
@@ -22,6 +24,7 @@ class ManipulateOrderService implements ManipulateOrderUseCase {
 
     private final OrderJpaRepository repository;
     private final BookJpaRepository bookRepository;
+    private final RecipientJpaRepository recipientRepository;
 
     @Override
     public PlaceOrderResponse placeOrder(PlaceOrderCommand command) {
@@ -30,14 +33,19 @@ class ManipulateOrderService implements ManipulateOrderUseCase {
                 .stream()
                 .map(this::toOrderItem)
                 .collect(Collectors.toSet());
-
         Order order = Order.builder()
-                .recipient(command.getRecipient())
+                .recipient(getOrCreateRecipient(command.getRecipient()))
                 .items(items)
                 .build();
         Order save = repository.save(order);
         bookRepository.saveAll(updateBooks(items));
         return PlaceOrderResponse.SUCCESS(save.getId());
+    }
+
+    private  Recipient getOrCreateRecipient(Recipient recipient) {
+        return recipientRepository
+                .findByEmailIgnoreCase(recipient.getEmail())
+                .orElse(recipient);
     }
 
     private Set<Book> updateBooks(Set<OrderItem> items) {
