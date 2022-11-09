@@ -37,7 +37,6 @@ class CatalogControllerIT {
         givenJavaConcurrencyInPractice();
         //when
         List<Book> all = controller.getAll(Optional.empty(), Optional.empty());
-
         //then
         assertEquals(2,all.size());
     }
