@@ -90,7 +90,7 @@ class OrderServiceTest {
     }
 
     @Test
-    public void userCannotRevokePaidOrder(){
+    public void userCannotRevokePaidOrder() {
         //given
         Book effectiveJava = givenEffectiveJava(50L);
         Long orderId = placedOrder(effectiveJava.getId(), 15);
@@ -98,13 +98,79 @@ class OrderServiceTest {
         //when
         service.updateOrderStatus(orderId, OrderStatus.PAID);
         assertEquals(OrderStatus.PAID, queryOrderService.findById(orderId).get().getStatus());
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+        IllegalArgumentException exceptionCanceled = assertThrows(IllegalArgumentException.class, () -> {
             service.updateOrderStatus(orderId, OrderStatus.CANCELED);
         });
+        IllegalArgumentException exceptionAbandoned = assertThrows(IllegalArgumentException.class, () -> {
+            service.updateOrderStatus(orderId, OrderStatus.ABANDONED);
+        });
         //then
-        assertTrue(exception.getMessage().contains("Unable to mark PAID order as CANCELED"));
+        assertTrue(exceptionCanceled.getMessage().contains("Unable to mark PAID order as CANCELED"));
+        assertTrue(exceptionAbandoned.getMessage().contains("Unable to mark PAID order as ABANDONED"));
     }
 
+    @Test
+    public void userCannotRevokeShippedOrder() {
+        //given
+        Book effectiveJava = givenEffectiveJava(50L);
+        Long orderId = placedOrder(effectiveJava.getId(), 15);
+        assertEquals(OrderStatus.NEW, queryOrderService.findById(orderId).get().getStatus());
+        //when
+        service.updateOrderStatus(orderId, OrderStatus.PAID);
+        assertEquals(OrderStatus.PAID, queryOrderService.findById(orderId).get().getStatus());
+        service.updateOrderStatus(orderId, OrderStatus.SHIPPED);
+        assertEquals(OrderStatus.SHIPPED, queryOrderService.findById(orderId).get().getStatus());
+        IllegalArgumentException exceptionCanceled = assertThrows(IllegalArgumentException.class, () -> {
+            service.updateOrderStatus(orderId, OrderStatus.CANCELED);
+        });
+        IllegalArgumentException exceptionAbandoned = assertThrows(IllegalArgumentException.class, () -> {
+            service.updateOrderStatus(orderId, OrderStatus.ABANDONED);
+        });
+        //then
+        assertTrue(exceptionCanceled.getMessage().contains("Unable to mark SHIPPED order as CANCELED"));
+        assertTrue(exceptionAbandoned.getMessage().contains("Unable to mark SHIPPED order as ABANDONED"));
+    }
+
+
+    @Test
+    public void userCannotOrderNoExistingBooks() {
+
+        //given
+        Long idNotExistingBook = 1L;
+        PlaceOrderCommand command = PlaceOrderCommand
+                .builder()
+                .recipient(recipient())
+                .items(List.of(new OrderItemCommand(idNotExistingBook, 15)))
+                .build();
+        //when
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+            service.placeOrder(command);
+        });
+        //then
+        assertTrue(exception.getMessage().contains("Book not found with id:1"));
+    }
+
+    @Test
+    public void userCannotOrderNegativeNumberOfBooks() {
+        //given
+        Book effectiveJava = givenEffectiveJava(50L);
+        Book jcip = givenJavaConcurrency(50L);
+        PlaceOrderCommand command = PlaceOrderCommand
+                .builder()
+                .recipient(recipient())
+                .items(List.of(
+                        new OrderItemCommand(effectiveJava.getId(), -15),
+                        new OrderItemCommand(jcip.getId(), 10)))
+                .build();
+        //when
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+            service.placeOrder(command);
+        });
+        //then
+        assertTrue(exception.getMessage().contains("Quantity cannot be negative : [bookId: " + effectiveJava.getId() + " quantity: -15]"));
+
+
+    }
 
     private Long getAvailableCopiesFromBook(Book book) {
         return catalogUseCase

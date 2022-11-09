@@ -59,10 +59,15 @@ class ManipulateOrderService implements ManipulateOrderUseCase {
                 .findById(command.getBookId())
                 .orElseThrow(() -> new IllegalArgumentException("Book not found with id:" + command.getBookId()));
 
+        if (command.getQuantity() <= 0)
+            throw new IllegalArgumentException("Quantity cannot be negative : [bookId: "
+                    + command.getBookId() + " quantity: " + command.getQuantity() + "]");
         if (book.getAvailable() >= command.getQuantity()) {
             return new OrderItem(book, command.getQuantity());
+        } else{
+            throw new IllegalArgumentException("Too many copies of book " + book.getId() + " requested: " + command.getQuantity() + " of " + book.getAvailable() + " available");
         }
-        throw new IllegalArgumentException("Too many copies of book " + book.getId() + " requested: " + command.getQuantity() + " of " + book.getAvailable() + " available");
+
     }
 
     @Override
