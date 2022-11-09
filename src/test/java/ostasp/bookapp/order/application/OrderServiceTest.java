@@ -89,6 +89,23 @@ class OrderServiceTest {
         assertEquals(OrderStatus.CANCELED, queryOrderService.findById(orderId).get().getStatus());
     }
 
+    @Test
+    public void userCannotRevokePaidOrder(){
+        //given
+        Book effectiveJava = givenEffectiveJava(50L);
+        Long orderId = placedOrder(effectiveJava.getId(), 15);
+        assertEquals(OrderStatus.NEW, queryOrderService.findById(orderId).get().getStatus());
+        //when
+        service.updateOrderStatus(orderId, OrderStatus.PAID);
+        assertEquals(OrderStatus.PAID, queryOrderService.findById(orderId).get().getStatus());
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+            service.updateOrderStatus(orderId, OrderStatus.CANCELED);
+        });
+        //then
+        assertTrue(exception.getMessage().contains("Unable to mark PAID order as CANCELED"));
+    }
+
+
     private Long getAvailableCopiesFromBook(Book book) {
         return catalogUseCase
                 .findById(book.getId())
