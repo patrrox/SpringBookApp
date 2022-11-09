@@ -42,7 +42,7 @@ class CatalogControllerApiTest {
         ParameterizedTypeReference<List<Book>> type= new ParameterizedTypeReference<>(){};
         RequestEntity<Void> request = RequestEntity.get(URI.create("http://localhost:" + port + "/catalog")).build();
         ResponseEntity<List<Book>> response = restTemplate.exchange(request, type);
-        
+
         //then
         assertEquals(2, response.getBody().size());
     }

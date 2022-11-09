@@ -3,9 +3,9 @@ package ostasp.bookapp.order.application;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.context.annotation.Import;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
+import ostasp.bookapp.catalog.application.port.CatalogUseCase;
 import ostasp.bookapp.catalog.db.BookJpaRepository;
 import ostasp.bookapp.catalog.domain.Book;
 import ostasp.bookapp.order.application.port.ManipulateOrderUseCase;
@@ -18,10 +18,9 @@ import static org.junit.jupiter.api.Assertions.*;
 import static ostasp.bookapp.order.application.port.ManipulateOrderUseCase.*;
 
 
-@DataJpaTest
-@Import({ManipulateOrderService.class})
-@DirtiesContext
+@SpringBootTest
 @AutoConfigureTestDatabase
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 class ManipulateOrderServiceTest {
 
     @Autowired
@@ -29,6 +28,9 @@ class ManipulateOrderServiceTest {
 
     @Autowired
     ManipulateOrderUseCase service;
+
+    @Autowired
+    CatalogUseCase catalogUseCase;
 
     @Test
     public void userCanPlaceOrder() {
@@ -38,12 +40,16 @@ class ManipulateOrderServiceTest {
         PlaceOrderCommand command = PlaceOrderCommand
                 .builder()
                 .recipient(recipient())
-                .items(List.of(new OrderItemCommand(effectiveJava.getId(), 15), new OrderItemCommand(jcip.getId(), 10)))
+                .items(List.of(
+                        new OrderItemCommand(effectiveJava.getId(), 15),
+                        new OrderItemCommand(jcip.getId(), 10)))
                 .build();
         //when
         PlaceOrderResponse response = service.placeOrder(command);
         //then
         assertTrue(response.isSuccess());
+        assertEquals(35L,catalogUseCase.findById(effectiveJava.getId()).get().getAvailable());
+        assertEquals(40L,catalogUseCase.findById(jcip.getId()).get().getAvailable());
     }
 
     @Test
