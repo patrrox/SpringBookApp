@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import ostasp.bookapp.order.application.RichOrder;
 import ostasp.bookapp.order.application.port.ManipulateOrderUseCase;
 import ostasp.bookapp.order.application.port.ManipulateOrderUseCase.PlaceOrderCommand;
 import ostasp.bookapp.order.application.port.ManipulateOrderUseCase.PlaceOrderResponse;
