@@ -23,7 +23,7 @@ public class Book extends BaseEntity {
 
     @Column(unique = true)
     private String title;
-    private Integer year;
+    private Integer bookYear;
     private BigDecimal price;
     private Long coverId;
     private Long available;
@@ -38,9 +38,9 @@ public class Book extends BaseEntity {
     @LastModifiedDate
     private LocalDateTime updatedAt;
 
-    public Book(String title, Integer year, BigDecimal price, Long available) {
+    public Book(String title, Integer bookYear, BigDecimal price, Long available) {
         this.title = title;
-        this.year = year;
+        this.bookYear = bookYear;
         this.price = price;
         this.available = available;
     }

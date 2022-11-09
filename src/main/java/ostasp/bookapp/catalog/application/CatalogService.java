@@ -96,7 +96,7 @@ class CatalogService implements CatalogUseCase {
         if (command.getAuthors() != null && command.getAuthors().size() > 0)
             updateBooks(book, fetchAuthorsByIds(command.getAuthors()));
         if (command.getYear() != null)
-            book.setYear(command.getYear());
+            book.setBookYear(command.getYear());
         if (command.getPrice() != null)
             book.setPrice(command.getPrice());
         return book;
