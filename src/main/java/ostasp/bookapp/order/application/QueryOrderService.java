@@ -7,6 +7,8 @@ import ostasp.bookapp.catalog.db.BookJpaRepository;
 import ostasp.bookapp.order.application.port.QueryOrderUseCase;
 import ostasp.bookapp.order.db.OrderJpaRepository;
 import ostasp.bookapp.order.domain.Order;
+import ostasp.bookapp.order.price.OrderPrice;
+import ostasp.bookapp.order.price.PriceService;
 
 import java.util.List;
 import java.util.Optional;
@@ -17,7 +19,7 @@ import java.util.stream.Collectors;
 class QueryOrderService implements QueryOrderUseCase {
 
     private final OrderJpaRepository repository;
-    private final BookJpaRepository catalogRepository;
+    private final PriceService priceService;
 
     @Override
     @Transactional
@@ -29,17 +31,21 @@ class QueryOrderService implements QueryOrderUseCase {
     }
 
     @Override
+    @Transactional
     public Optional<RichOrder> findById(Long id) {
         return repository.findById(id).map(this::toRichOrder);
     }
 
     private RichOrder toRichOrder(Order order) {
+        OrderPrice orderPrice  = priceService.calculatePrice(order);
         return new RichOrder(
                 order.getId(),
                 order.getStatus(),
                 order.getItems(),
                 order.getRecipient(),
-                order.getCreatedAt()
+                order.getCreatedAt(),
+                orderPrice,
+                orderPrice.finalPrice()
         );
     }
 

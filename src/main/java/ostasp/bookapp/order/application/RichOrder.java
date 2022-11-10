@@ -4,6 +4,7 @@ import lombok.Value;
 import ostasp.bookapp.order.domain.OrderItem;
 import ostasp.bookapp.order.domain.OrderStatus;
 import ostasp.bookapp.order.domain.Recipient;
+import ostasp.bookapp.order.price.OrderPrice;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -16,12 +17,7 @@ public class RichOrder {
     Set<OrderItem> items;
     Recipient recipient;
     LocalDateTime createdAt;
+    OrderPrice orderPrice;
+    BigDecimal finalPrice;
 
-    public BigDecimal totalPrice() {
-        return items.stream()
-                .map(item -> item.getBook().getPrice().multiply(new BigDecimal(item.getQuantity())))
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-
-    }
 }

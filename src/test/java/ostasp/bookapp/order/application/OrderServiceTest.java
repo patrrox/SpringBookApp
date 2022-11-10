@@ -10,6 +10,7 @@ import ostasp.bookapp.catalog.db.BookJpaRepository;
 import ostasp.bookapp.catalog.domain.Book;
 import ostasp.bookapp.order.application.port.ManipulateOrderUseCase;
 import ostasp.bookapp.order.application.port.QueryOrderUseCase;
+import ostasp.bookapp.order.domain.Delivery;
 import ostasp.bookapp.order.domain.OrderStatus;
 import ostasp.bookapp.order.domain.Recipient;
 
@@ -226,6 +227,74 @@ class OrderServiceTest {
     }
 
 
+
+    @Test
+    public void shippingCostsAreAddedToTotalOrderPrice() {
+        // given
+        Book book = givenBook(50L, "49.90");
+
+        // when
+        Long orderId = placedOrder(book.getId(), 1);
+
+        // then
+        assertEquals("59.80", orderOf(orderId).getFinalPrice().toPlainString());
+    }
+
+    @Test
+    public void shippingCostsAreDiscountedOver100zlotys() {
+        // given
+        Book book = givenBook(50L, "49.90");
+
+        // when
+        Long orderId = placedOrder(book.getId(), 3);
+
+        // then
+        RichOrder order = orderOf(orderId);
+        assertEquals("149.70", order.getFinalPrice().toPlainString());
+        assertEquals("149.70", order.getOrderPrice().getItemsPrice().toPlainString());
+    }
+
+    @Test
+    public void cheapestBookIsHalfPricedWhenTotalOver200zlotys() {
+        // given
+        Book book = givenBook(50L, "49.90");
+
+        // when
+        Long orderId = placedOrder(book.getId(), 5);
+
+        // then
+        RichOrder order = orderOf(orderId);
+
+        assertEquals(new BigDecimal("9.90"),order.getOrderPrice().getDeliveryPrice());
+        assertEquals(new BigDecimal("34.85"),order.getOrderPrice().getDiscounts());
+        assertEquals("224.55", order.getFinalPrice().toPlainString());
+    }
+
+    @Test
+    public void cheapestBookIsFreeWhenTotalOver400zlotys() {
+        // given
+        Book book = givenBook(50L, "49.90");
+
+        // when
+        Long orderId = placedOrder(book.getId(), 10);
+
+        RichOrder order = orderOf(orderId);
+        // then
+        assertEquals(new BigDecimal("9.90"),order.getOrderPrice().getDeliveryPrice());
+        assertEquals(new BigDecimal("59.80"),order.getOrderPrice().getDiscounts());
+        assertEquals("449.10", order.getFinalPrice().toPlainString());
+    }
+
+    private Book givenBook(long available, String price) {
+        return bookRepository.save(new Book("Java Concurrency in Practice", 2006, new BigDecimal(price), available));
+    }
+
+    private RichOrder orderOf(Long orderId) {
+        return queryOrderService.findById(orderId).get();
+    }
+
+
+
     private Long getAvailableCopiesFromBook(Book book) {
         return catalogUseCase
                 .findById(book.getId())
@@ -239,6 +308,7 @@ class OrderServiceTest {
                 .recipient(recipient(recipient))
                 .items(List.of(
                         new OrderItemCommand(bookId, quantity)))
+                .delivery(Delivery.COURIER)
                 .build();
         return service.placeOrder(command).getOrderId();
     }

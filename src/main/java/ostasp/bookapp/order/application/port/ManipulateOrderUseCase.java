@@ -1,6 +1,7 @@
 package ostasp.bookapp.order.application.port;
 
 import lombok.*;
+import ostasp.bookapp.order.domain.Delivery;
 import ostasp.bookapp.order.domain.OrderStatus;
 import ostasp.bookapp.order.domain.Recipient;
 
@@ -22,6 +23,7 @@ public interface ManipulateOrderUseCase {
     class PlaceOrderCommand {
         List<OrderItemCommand> items;
         Recipient recipient;
+        Delivery delivery;
     }
 
     @Value
