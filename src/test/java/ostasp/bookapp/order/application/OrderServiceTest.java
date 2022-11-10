@@ -209,6 +209,22 @@ class OrderServiceTest {
         assertEquals(OrderStatus.CANCELED, queryOrderService.findById(orderId).get().getStatus());
     }
 
+    @Test
+    //TODO: should be changed after spring security
+    public void adminCanMarkOrderAsPaid() {
+        //given
+        Book effectiveJava = givenEffectiveJava(50L);
+        String recipient = "marek@example.org";
+        Long orderId = placedOrder(effectiveJava.getId(), 15, recipient);
+        assertEquals(35L, getAvailableCopiesFromBook(effectiveJava));
+        //when
+        String admin = "admin@example.org";
+        service.updateOrderStatus(new UpdateStatusCommand(orderId, OrderStatus.PAID, admin));
+        //then
+        assertEquals(35L, getAvailableCopiesFromBook(effectiveJava));
+        assertEquals(OrderStatus.PAID, queryOrderService.findById(orderId).get().getStatus());
+    }
+
 
     private Long getAvailableCopiesFromBook(Book book) {
         return catalogUseCase
