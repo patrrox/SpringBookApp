@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import ostasp.bookapp.clock.Clock;
 import ostasp.bookapp.order.application.port.ManipulateOrderUseCase;
 import ostasp.bookapp.order.db.OrderJpaRepository;
 import ostasp.bookapp.order.domain.Order;
@@ -23,12 +24,17 @@ public class AbandonedOrdersJob {
     private final OrderJpaRepository repository;
     private final ManipulateOrderUseCase orderUseCase;
     private final OrdersProperties properties;
+    private final Clock clock;
 
     @Scheduled(cron = "${app.orders.abandon-cron}")
     @Transactional
     public void run() {
         Duration paymentPeriod = properties.getPaymentPeriod();
-        LocalDateTime olderThan = LocalDateTime.now().minus(paymentPeriod);
+        LocalDateTime olderThan = clock.now().minus(paymentPeriod);
+
+        //test
+        List<Order> all = repository.findAll();
+
         List<Order> orders = repository.findByStatusAndCreatedAtLessThanEqual(OrderStatus.NEW, olderThan);
         log.info("Found orders to be abandoned: " + orders.size());
         orders.forEach(order -> {
