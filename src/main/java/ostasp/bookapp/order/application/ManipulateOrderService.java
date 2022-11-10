@@ -64,7 +64,7 @@ class ManipulateOrderService implements ManipulateOrderUseCase {
                     + command.getBookId() + " quantity: " + command.getQuantity() + "]");
         if (book.getAvailable() >= command.getQuantity()) {
             return new OrderItem(book, command.getQuantity());
-        } else{
+        } else {
             throw new IllegalArgumentException("Too many copies of book " + book.getId() + " requested: " + command.getQuantity() + " of " + book.getAvailable() + " available");
         }
 
@@ -76,18 +76,28 @@ class ManipulateOrderService implements ManipulateOrderUseCase {
     }
 
     @Override
-    public UpdateOrderStatusResponse updateOrderStatus(Long id, OrderStatus status) {
+    public UpdateOrderStatusResponse updateOrderStatus(UpdateStatusCommand command) {
         return repository
-                .findById(id)
+                .findById(command.getOrderId())
                 .map(order -> {
-                    UpdateStatusResult result = order.updateStatus(status);
+                    if (!hasAccess(command, order)) {
+                        return UpdateOrderStatusResponse.FAILURE("Unauthorized");
+                    }
+                    UpdateStatusResult result = order.updateStatus(command.getStatus());
                     if (result.isRevoked()) {
                         bookRepository.saveAll(revokeBooks(order.getItems()));
                     }
                     repository.save(order);
                     return UpdateOrderStatusResponse.SUCCESS;
                 })
-                .orElseGet(() -> new UpdateOrderStatusResponse(false, List.of("Order not found with id: " + id)));
+                .orElseGet(() -> new UpdateOrderStatusResponse(false, List.of("Order not found with id: " + command.getOrderId())));
+    }
+
+    private static boolean hasAccess(UpdateStatusCommand command, Order order) {
+        //TODO : Workaround SPRING CONFIGURATION
+        String adminEmail = "admin@example.org";
+        return command.getEmail().equalsIgnoreCase(order.getRecipient().getEmail())
+                || command.getEmail().equalsIgnoreCase(adminEmail);
     }
 
     private Set<Book> revokeBooks(Set<OrderItem> items) {

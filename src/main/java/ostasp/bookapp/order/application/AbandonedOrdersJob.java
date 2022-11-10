@@ -14,6 +14,8 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import static ostasp.bookapp.order.application.port.ManipulateOrderUseCase.*;
+
 @Slf4j
 @Component
 @AllArgsConstructor
@@ -24,11 +26,16 @@ public class AbandonedOrdersJob {
 
     @Scheduled(cron = "${app.orders.abandon-cron}")
     @Transactional
-    public void run(){
+    public void run() {
         Duration paymentPeriod = properties.getPaymentPeriod();
         LocalDateTime olderThan = LocalDateTime.now().minus(paymentPeriod);
         List<Order> orders = repository.findByStatusAndCreatedAtLessThanEqual(OrderStatus.NEW, olderThan);
         log.info("Found orders to be abandoned: " + orders.size());
-        orders.forEach(order -> orderUseCase.updateOrderStatus(order.getId(),OrderStatus.ABANDONED));
+        orders.forEach(order -> {
+            //TODO: SECURITY EMAIL
+            String adminEmail = "admin@example.org";
+            UpdateStatusCommand command = new UpdateStatusCommand(order.getId(), OrderStatus.ABANDONED, adminEmail);
+            orderUseCase.updateOrderStatus(command);
+        });
     }
 }

@@ -12,12 +12,12 @@ import ostasp.bookapp.order.application.port.ManipulateOrderUseCase;
 import ostasp.bookapp.order.application.port.ManipulateOrderUseCase.PlaceOrderCommand;
 import ostasp.bookapp.order.application.port.ManipulateOrderUseCase.PlaceOrderResponse;
 import ostasp.bookapp.order.application.port.ManipulateOrderUseCase.UpdateOrderStatusResponse;
+import ostasp.bookapp.order.application.port.ManipulateOrderUseCase.UpdateStatusCommand;
 import ostasp.bookapp.order.application.port.QueryOrderUseCase;
 
 import java.net.URI;
 import java.util.List;
 
-import ostasp.bookapp.order.application.port.QueryOrderUseCase.*;
 import ostasp.bookapp.order.domain.OrderStatus;
 
 
@@ -53,13 +53,16 @@ public class OrdersController {
         return ResponseEntity.created(uri).build();
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/{id}/status")
     @ResponseStatus(ACCEPTED)
-    public void updateOrder(@PathVariable Long id, @RequestBody UpdateStatusCommand command) {
+    public void updateOrderStatus(@PathVariable Long id, @RequestBody UpdateRequestStatusCommand command) {
         OrderStatus orderStatus = OrderStatus
                 .parseString(command.status)
                 .orElseThrow(() -> new ResponseStatusException(BAD_REQUEST, "Unknown status: " + command.status));
-        UpdateOrderStatusResponse response = manipulateOrder.updateOrderStatus(id, orderStatus);
+        //TODO: SECURITY EMAIL
+        String adminEmail = "admin@example.org";//TODO: remove
+        UpdateStatusCommand updateStatusCommand = new UpdateStatusCommand(id,orderStatus,adminEmail);
+        UpdateOrderStatusResponse response = manipulateOrder.updateOrderStatus(updateStatusCommand);
 
         if (!response.isSuccess()) {
             String message = String.join(", ", response.getErrors());
@@ -75,7 +78,7 @@ public class OrdersController {
 
 
     @Data
-    static class UpdateStatusCommand {
+    static class UpdateRequestStatusCommand {
         String status;
     }
 

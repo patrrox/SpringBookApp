@@ -80,10 +80,11 @@ class OrderServiceTest {
     public void userCanRevokeOrder() {
         //given
         Book effectiveJava = givenEffectiveJava(50L);
-        Long orderId = placedOrder(effectiveJava.getId(), 15);
+        String recipient = "marek@example.org";
+        Long orderId = placedOrder(effectiveJava.getId(), 15, recipient);
         assertEquals(35L, getAvailableCopiesFromBook(effectiveJava));
         //when
-        service.updateOrderStatus(orderId, OrderStatus.CANCELED);
+        service.updateOrderStatus(new UpdateStatusCommand(orderId, OrderStatus.CANCELED, recipient));
         //then
         assertEquals(50L, getAvailableCopiesFromBook(effectiveJava));
         assertEquals(OrderStatus.CANCELED, queryOrderService.findById(orderId).get().getStatus());
@@ -93,16 +94,17 @@ class OrderServiceTest {
     public void userCannotRevokePaidOrder() {
         //given
         Book effectiveJava = givenEffectiveJava(50L);
-        Long orderId = placedOrder(effectiveJava.getId(), 15);
+        String recipient = "marek@example.org";
+        Long orderId = placedOrder(effectiveJava.getId(), 15, recipient);
         assertEquals(OrderStatus.NEW, queryOrderService.findById(orderId).get().getStatus());
         //when
-        service.updateOrderStatus(orderId, OrderStatus.PAID);
+        service.updateOrderStatus(new UpdateStatusCommand(orderId, OrderStatus.PAID, recipient));
         assertEquals(OrderStatus.PAID, queryOrderService.findById(orderId).get().getStatus());
         IllegalArgumentException exceptionCanceled = assertThrows(IllegalArgumentException.class, () -> {
-            service.updateOrderStatus(orderId, OrderStatus.CANCELED);
+            service.updateOrderStatus(new UpdateStatusCommand(orderId, OrderStatus.CANCELED, recipient));
         });
         IllegalArgumentException exceptionAbandoned = assertThrows(IllegalArgumentException.class, () -> {
-            service.updateOrderStatus(orderId, OrderStatus.ABANDONED);
+            service.updateOrderStatus(new UpdateStatusCommand(orderId, OrderStatus.ABANDONED, recipient));
         });
         //then
         assertTrue(exceptionCanceled.getMessage().contains("Unable to mark PAID order as CANCELED"));
@@ -113,18 +115,19 @@ class OrderServiceTest {
     public void userCannotRevokeShippedOrder() {
         //given
         Book effectiveJava = givenEffectiveJava(50L);
-        Long orderId = placedOrder(effectiveJava.getId(), 15);
+        String recipient = "marek@example.org";
+        Long orderId = placedOrder(effectiveJava.getId(), 15,recipient);
         assertEquals(OrderStatus.NEW, queryOrderService.findById(orderId).get().getStatus());
         //when
-        service.updateOrderStatus(orderId, OrderStatus.PAID);
+        service.updateOrderStatus(new UpdateStatusCommand(orderId, OrderStatus.PAID, recipient));
         assertEquals(OrderStatus.PAID, queryOrderService.findById(orderId).get().getStatus());
-        service.updateOrderStatus(orderId, OrderStatus.SHIPPED);
+        service.updateOrderStatus(new UpdateStatusCommand(orderId, OrderStatus.SHIPPED, recipient));
         assertEquals(OrderStatus.SHIPPED, queryOrderService.findById(orderId).get().getStatus());
         IllegalArgumentException exceptionCanceled = assertThrows(IllegalArgumentException.class, () -> {
-            service.updateOrderStatus(orderId, OrderStatus.CANCELED);
+            service.updateOrderStatus(new UpdateStatusCommand(orderId, OrderStatus.CANCELED, recipient));
         });
         IllegalArgumentException exceptionAbandoned = assertThrows(IllegalArgumentException.class, () -> {
-            service.updateOrderStatus(orderId, OrderStatus.ABANDONED);
+            service.updateOrderStatus(new UpdateStatusCommand(orderId, OrderStatus.ABANDONED, recipient));
         });
         //then
         assertTrue(exceptionCanceled.getMessage().contains("Unable to mark SHIPPED order as CANCELED"));
@@ -172,6 +175,24 @@ class OrderServiceTest {
 
     }
 
+    @Test
+    public void userCannotRevokeOtherUsersOrder() {
+        //given
+        Book effectiveJava = givenEffectiveJava(50L);
+        String recipient = "adam@example.org";
+        Long orderId = placedOrder(effectiveJava.getId(), 15, recipient);
+        assertEquals(35L, getAvailableCopiesFromBook(effectiveJava));
+        //when
+        UpdateStatusCommand command = new UpdateStatusCommand(orderId, OrderStatus.CANCELED, "marek@example.com");
+        UpdateOrderStatusResponse response = service.updateOrderStatus(command);
+        //then
+        assertEquals(35L, getAvailableCopiesFromBook(effectiveJava));
+        assertEquals(OrderStatus.NEW, queryOrderService.findById(orderId).get().getStatus());
+        assertTrue(response.getErrors().contains("Unauthorized"));
+
+    }
+
+
     private Long getAvailableCopiesFromBook(Book book) {
         return catalogUseCase
                 .findById(book.getId())
@@ -179,14 +200,18 @@ class OrderServiceTest {
                 .getAvailable();
     }
 
-    private Long placedOrder(Long bookId, int quantity) {
+    private Long placedOrder(Long bookId, int quantity, String recipient) {
         PlaceOrderCommand command = PlaceOrderCommand
                 .builder()
-                .recipient(recipient())
+                .recipient(recipient(recipient))
                 .items(List.of(
                         new OrderItemCommand(bookId, quantity)))
                 .build();
         return service.placeOrder(command).getOrderId();
+    }
+
+    private Long placedOrder(Long bookId, int quantity) {
+        return placedOrder(bookId, quantity, "john@example.org");
     }
 
     private Book givenJavaConcurrency(long available) {

@@ -14,7 +14,7 @@ public interface ManipulateOrderUseCase {
 
     void deleteOrderById(Long id);
 
-    UpdateOrderStatusResponse updateOrderStatus(Long id, OrderStatus status);
+    UpdateOrderStatusResponse updateOrderStatus(UpdateStatusCommand command);
 
     @Builder
     @Value
@@ -28,6 +28,13 @@ public interface ManipulateOrderUseCase {
     class OrderItemCommand {
         Long bookId;
         int quantity;
+    }
+
+    @Value
+    class UpdateStatusCommand{
+        Long orderId;
+        OrderStatus status;
+        String email;
     }
 
 
@@ -52,5 +59,9 @@ public interface ManipulateOrderUseCase {
         boolean success;
         List<String> errors;
         public static final UpdateOrderStatusResponse SUCCESS = new UpdateOrderStatusResponse(true, Collections.emptyList());
+
+        public static UpdateOrderStatusResponse FAILURE(String... errors) {
+            return new UpdateOrderStatusResponse(false,  Arrays.asList(errors));
+        }
     }
 }
