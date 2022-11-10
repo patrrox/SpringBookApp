@@ -192,6 +192,23 @@ class OrderServiceTest {
 
     }
 
+    @Test
+    //TODO: should be changed after spring security
+    public void adminCanRevokeOtherUsersOrder() {
+        //given
+        Book effectiveJava = givenEffectiveJava(50L);
+        String recipient = "marek@example.org";
+        Long orderId = placedOrder(effectiveJava.getId(), 15, recipient);
+        assertEquals(35L, getAvailableCopiesFromBook(effectiveJava));
+        //when
+        String admin = "admin@example.org";
+        UpdateStatusCommand command = new UpdateStatusCommand(orderId, OrderStatus.CANCELED, admin);
+        UpdateOrderStatusResponse response = service.updateOrderStatus(command);
+        //then
+        assertEquals(50L, getAvailableCopiesFromBook(effectiveJava));
+        assertEquals(OrderStatus.CANCELED, queryOrderService.findById(orderId).get().getStatus());
+    }
+
 
     private Long getAvailableCopiesFromBook(Book book) {
         return catalogUseCase
