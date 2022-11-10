@@ -23,7 +23,9 @@ public interface ManipulateOrderUseCase {
     class PlaceOrderCommand {
         List<OrderItemCommand> items;
         Recipient recipient;
-        Delivery delivery;
+        @Builder.Default
+        Delivery delivery =Delivery.COURIER;
+
     }
 
     @Value

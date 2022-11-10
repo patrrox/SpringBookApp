@@ -53,12 +53,16 @@ public class Order extends BaseEntity {
     }
 
     public BigDecimal getItemsPrice() {
-        return items.stream()
-                .map(item -> item.getBook().getPrice().multiply(new BigDecimal(item.getQuantity())))
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        if (items != null && !items.isEmpty())
+            return items.stream()
+                    .map(item -> item.getBook().getPrice().multiply(new BigDecimal(item.getQuantity())))
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+        return BigDecimal.ZERO;
     }
 
-    public BigDecimal getDeliveryPrice(){
-        return delivery.getPrice();
+    public BigDecimal getDeliveryPrice() {
+        if (items != null && !items.isEmpty())
+            return delivery.getPrice();
+        return BigDecimal.ZERO;
     }
 }

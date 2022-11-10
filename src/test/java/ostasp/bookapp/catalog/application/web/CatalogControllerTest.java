@@ -28,8 +28,6 @@ class CatalogControllerTest {
     @Autowired
     CatalogController controller;
 
-    @Autowired
-
     @Test
     public void shouldGetAllBooks() {
         //given
