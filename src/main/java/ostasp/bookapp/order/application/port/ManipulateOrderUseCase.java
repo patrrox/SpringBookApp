@@ -5,6 +5,8 @@ import ostasp.bookapp.order.domain.Delivery;
 import ostasp.bookapp.order.domain.OrderStatus;
 import ostasp.bookapp.order.domain.Recipient;
 
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -24,6 +26,7 @@ public interface ManipulateOrderUseCase {
         List<OrderItemCommand> items;
         Recipient recipient;
         @Builder.Default
+        @Enumerated(EnumType.STRING)
         Delivery delivery =Delivery.COURIER;
 
     }

@@ -4,6 +4,7 @@ package ostasp.bookapp.order.application.web;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -32,11 +33,14 @@ public class OrdersController {
     private final QueryOrderUseCase queryOrder;
 
 
+    @Secured({"ROLE_ADMIN"})
     @GetMapping
     public List<RichOrder> getOrders() {
         return queryOrder.findAll();
     }
 
+    // TODO: user with this order or admin
+    @Secured({"ROLE_ADMIN, ROLE_USER"})
     @GetMapping("/{id}")
     ResponseEntity<RichOrder> getOrderById(@PathVariable Long id) {
         return queryOrder
@@ -53,7 +57,10 @@ public class OrdersController {
         return ResponseEntity.created(uri).build();
     }
 
-    @PutMapping("/{id}/status")
+    //TODO : admin all status
+    // TODO : user with order - only cancel order
+    @Secured({"ROLE_ADMIN, ROLE_USER"})
+    @PatchMapping ("/{id}/status")
     @ResponseStatus(ACCEPTED)
     public void updateOrderStatus(@PathVariable Long id, @RequestBody UpdateRequestStatusCommand command) {
         OrderStatus orderStatus = OrderStatus
@@ -70,6 +77,7 @@ public class OrdersController {
         }
     }
 
+    @Secured({"ROLE_ADMIN"})
     @DeleteMapping("/{id}")
     @ResponseStatus(NO_CONTENT)
     public void deleteOrder(@PathVariable Long id) {
