@@ -3,6 +3,8 @@ package ostasp.bookapp.order.application;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import ostasp.bookapp.clock.Clock;
@@ -25,6 +27,7 @@ public class AbandonedOrdersJob {
     private final ManipulateOrderUseCase orderUseCase;
     private final OrdersProperties properties;
     private final Clock clock;
+    private User systemUser;
 
     @Scheduled(cron = "${app.orders.abandon-cron}")
     @Transactional
@@ -38,9 +41,7 @@ public class AbandonedOrdersJob {
         List<Order> orders = repository.findByStatusAndCreatedAtLessThanEqual(OrderStatus.NEW, olderThan);
         log.info("Found orders to be abandoned: " + orders.size());
         orders.forEach(order -> {
-            //TODO: SECURITY EMAIL
-            String adminEmail = "admin@example.org";
-            UpdateStatusCommand command = new UpdateStatusCommand(order.getId(), OrderStatus.ABANDONED, adminEmail);
+            UpdateStatusCommand command = new UpdateStatusCommand(order.getId(), OrderStatus.ABANDONED, systemUser);
             orderUseCase.updateOrderStatus(command);
         });
     }

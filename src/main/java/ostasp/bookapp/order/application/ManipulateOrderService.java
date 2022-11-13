@@ -3,6 +3,7 @@ package ostasp.bookapp.order.application;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ostasp.bookapp.catalog.application.security.UserSecurity;
 import ostasp.bookapp.catalog.db.BookJpaRepository;
 import ostasp.bookapp.catalog.domain.Book;
 import ostasp.bookapp.order.application.port.ManipulateOrderUseCase;
@@ -22,6 +23,7 @@ class ManipulateOrderService implements ManipulateOrderUseCase {
     private final OrderJpaRepository repository;
     private final BookJpaRepository bookRepository;
     private final RecipientJpaRepository recipientRepository;
+    private final UserSecurity userSecurity;
 
     @Override
     public PlaceOrderResponse placeOrder(PlaceOrderCommand command) {
@@ -77,29 +79,26 @@ class ManipulateOrderService implements ManipulateOrderUseCase {
     }
 
     @Override
+    @Transactional
     public UpdateOrderStatusResponse updateOrderStatus(UpdateStatusCommand command) {
         return repository
                 .findById(command.getOrderId())
                 .map(order -> {
-                    if (!hasAccess(command, order)) {
-                        return UpdateOrderStatusResponse.FAILURE("Unauthorized");
+                    if (userSecurity.isOwnerOrAdmin(order.getRecipient().getEmail(), command.getUser())){
+                        UpdateStatusResult result = order.updateStatus(command.getStatus());
+                        if (result.isRevoked()) {
+                            bookRepository.saveAll(revokeBooks(order.getItems()));
+                        }
+                        repository.save(order);
+                        return UpdateOrderStatusResponse.SUCCESS;
                     }
-                    UpdateStatusResult result = order.updateStatus(command.getStatus());
-                    if (result.isRevoked()) {
-                        bookRepository.saveAll(revokeBooks(order.getItems()));
-                    }
-                    repository.save(order);
-                    return UpdateOrderStatusResponse.SUCCESS;
+                    return UpdateOrderStatusResponse.FAILURE(Error.FORBIDDEN);
+                    //else
                 })
-                .orElseGet(() -> new UpdateOrderStatusResponse(false, List.of("Order not found with id: " + command.getOrderId())));
+                .orElseGet(() -> new UpdateOrderStatusResponse(false,Error.NOT_FOUND));
     }
 
-    private static boolean hasAccess(UpdateStatusCommand command, Order order) {
-        //TODO : Workaround SPRING CONFIGURATION
-        String adminEmail = "admin@example.org";
-        return command.getEmail().equalsIgnoreCase(order.getRecipient().getEmail())
-                || command.getEmail().equalsIgnoreCase(adminEmail);
-    }
+
 
     private Set<Book> revokeBooks(Set<OrderItem> items) {
         return items.stream()

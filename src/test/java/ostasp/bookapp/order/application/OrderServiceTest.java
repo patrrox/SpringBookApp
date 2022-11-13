@@ -4,6 +4,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.test.annotation.DirtiesContext;
 import ostasp.bookapp.catalog.application.port.CatalogUseCase;
 import ostasp.bookapp.catalog.db.BookJpaRepository;
@@ -85,7 +88,7 @@ class OrderServiceTest {
         Long orderId = placedOrder(effectiveJava.getId(), 15, recipient);
         assertEquals(35L, getAvailableCopiesFromBook(effectiveJava));
         //when
-        service.updateOrderStatus(new UpdateStatusCommand(orderId, OrderStatus.CANCELED, recipient));
+        service.updateOrderStatus(new UpdateStatusCommand(orderId, OrderStatus.CANCELED, user(recipient)));
         //then
         assertEquals(50L, getAvailableCopiesFromBook(effectiveJava));
         assertEquals(OrderStatus.CANCELED, queryOrderService.findById(orderId).get().getStatus());
@@ -99,13 +102,13 @@ class OrderServiceTest {
         Long orderId = placedOrder(effectiveJava.getId(), 15, recipient);
         assertEquals(OrderStatus.NEW, queryOrderService.findById(orderId).get().getStatus());
         //when
-        service.updateOrderStatus(new UpdateStatusCommand(orderId, OrderStatus.PAID, recipient));
+        service.updateOrderStatus(new UpdateStatusCommand(orderId, OrderStatus.PAID, user(recipient)));
         assertEquals(OrderStatus.PAID, queryOrderService.findById(orderId).get().getStatus());
         IllegalArgumentException exceptionCanceled = assertThrows(IllegalArgumentException.class, () -> {
-            service.updateOrderStatus(new UpdateStatusCommand(orderId, OrderStatus.CANCELED, recipient));
+            service.updateOrderStatus(new UpdateStatusCommand(orderId, OrderStatus.CANCELED, user(recipient)));
         });
         IllegalArgumentException exceptionAbandoned = assertThrows(IllegalArgumentException.class, () -> {
-            service.updateOrderStatus(new UpdateStatusCommand(orderId, OrderStatus.ABANDONED, recipient));
+            service.updateOrderStatus(new UpdateStatusCommand(orderId, OrderStatus.ABANDONED, user(recipient)));
         });
         //then
         assertTrue(exceptionCanceled.getMessage().contains("Unable to mark PAID order as CANCELED"));
@@ -120,15 +123,15 @@ class OrderServiceTest {
         Long orderId = placedOrder(effectiveJava.getId(), 15,recipient);
         assertEquals(OrderStatus.NEW, queryOrderService.findById(orderId).get().getStatus());
         //when
-        service.updateOrderStatus(new UpdateStatusCommand(orderId, OrderStatus.PAID, recipient));
+        service.updateOrderStatus(new UpdateStatusCommand(orderId, OrderStatus.PAID, user(recipient)));
         assertEquals(OrderStatus.PAID, queryOrderService.findById(orderId).get().getStatus());
-        service.updateOrderStatus(new UpdateStatusCommand(orderId, OrderStatus.SHIPPED, recipient));
+        service.updateOrderStatus(new UpdateStatusCommand(orderId, OrderStatus.SHIPPED, user(recipient)));
         assertEquals(OrderStatus.SHIPPED, queryOrderService.findById(orderId).get().getStatus());
         IllegalArgumentException exceptionCanceled = assertThrows(IllegalArgumentException.class, () -> {
-            service.updateOrderStatus(new UpdateStatusCommand(orderId, OrderStatus.CANCELED, recipient));
+            service.updateOrderStatus(new UpdateStatusCommand(orderId, OrderStatus.CANCELED, user(recipient)));
         });
         IllegalArgumentException exceptionAbandoned = assertThrows(IllegalArgumentException.class, () -> {
-            service.updateOrderStatus(new UpdateStatusCommand(orderId, OrderStatus.ABANDONED, recipient));
+            service.updateOrderStatus(new UpdateStatusCommand(orderId, OrderStatus.ABANDONED, user(recipient)));
         });
         //then
         assertTrue(exceptionCanceled.getMessage().contains("Unable to mark SHIPPED order as CANCELED"));
@@ -184,12 +187,12 @@ class OrderServiceTest {
         Long orderId = placedOrder(effectiveJava.getId(), 15, recipient);
         assertEquals(35L, getAvailableCopiesFromBook(effectiveJava));
         //when
-        UpdateStatusCommand command = new UpdateStatusCommand(orderId, OrderStatus.CANCELED, "marek@example.com");
+        UpdateStatusCommand command = new UpdateStatusCommand(orderId, OrderStatus.CANCELED, user("marek@example.com"));
         UpdateOrderStatusResponse response = service.updateOrderStatus(command);
         //then
         assertEquals(35L, getAvailableCopiesFromBook(effectiveJava));
         assertEquals(OrderStatus.NEW, queryOrderService.findById(orderId).get().getStatus());
-        assertTrue(response.getErrors().contains("Unauthorized"));
+        assertEquals(response.getError(), ManipulateOrderUseCase.Error.FORBIDDEN);
 
     }
 
@@ -202,8 +205,7 @@ class OrderServiceTest {
         Long orderId = placedOrder(effectiveJava.getId(), 15, recipient);
         assertEquals(35L, getAvailableCopiesFromBook(effectiveJava));
         //when
-        String admin = "admin@example.org";
-        UpdateStatusCommand command = new UpdateStatusCommand(orderId, OrderStatus.CANCELED, admin);
+        UpdateStatusCommand command = new UpdateStatusCommand(orderId, OrderStatus.CANCELED, adminUser());
         UpdateOrderStatusResponse response = service.updateOrderStatus(command);
         //then
         assertEquals(50L, getAvailableCopiesFromBook(effectiveJava));
@@ -219,8 +221,7 @@ class OrderServiceTest {
         Long orderId = placedOrder(effectiveJava.getId(), 15, recipient);
         assertEquals(35L, getAvailableCopiesFromBook(effectiveJava));
         //when
-        String admin = "admin@example.org";
-        service.updateOrderStatus(new UpdateStatusCommand(orderId, OrderStatus.PAID, admin));
+        service.updateOrderStatus(new UpdateStatusCommand(orderId, OrderStatus.PAID, adminUser()));
         //then
         assertEquals(35L, getAvailableCopiesFromBook(effectiveJava));
         assertEquals(OrderStatus.PAID, queryOrderService.findById(orderId).get().getStatus());
@@ -323,6 +324,14 @@ class OrderServiceTest {
 
     private Book givenEffectiveJava(long available) {
         return bookRepository.save(new Book("Effective Java", 2005, new BigDecimal("199.90"), available));
+    }
+
+    private User user(String email){
+        return new User(email,"", List.of(new SimpleGrantedAuthority("ROLE_USER")));
+    }
+
+    private User adminUser(){
+        return new User("systemUser","", List.of(new SimpleGrantedAuthority("ROLE_ADMIN")));
     }
 
     private Recipient recipient() {

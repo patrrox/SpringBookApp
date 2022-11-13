@@ -1,6 +1,8 @@
 package ostasp.bookapp.order.application.port;
 
 import lombok.*;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.core.userdetails.User;
 import ostasp.bookapp.order.domain.Delivery;
 import ostasp.bookapp.order.domain.OrderStatus;
 import ostasp.bookapp.order.domain.Recipient;
@@ -41,7 +43,7 @@ public interface ManipulateOrderUseCase {
     class UpdateStatusCommand{
         Long orderId;
         OrderStatus status;
-        String email;
+        User user;
     }
 
 
@@ -64,11 +66,20 @@ public interface ManipulateOrderUseCase {
     @AllArgsConstructor
     class UpdateOrderStatusResponse {
         boolean success;
-        List<String> errors;
-        public static final UpdateOrderStatusResponse SUCCESS = new UpdateOrderStatusResponse(true, Collections.emptyList());
+        Error error;
+        public static final UpdateOrderStatusResponse SUCCESS = new UpdateOrderStatusResponse(true, null);
 
-        public static UpdateOrderStatusResponse FAILURE(String... errors) {
-            return new UpdateOrderStatusResponse(false,  Arrays.asList(errors));
+        public static UpdateOrderStatusResponse FAILURE(Error error) {
+            return new UpdateOrderStatusResponse(false, error);
         }
+    }
+
+    @Getter
+    @AllArgsConstructor
+    enum Error {
+        NOT_FOUND (HttpStatus.NOT_FOUND),
+        FORBIDDEN(HttpStatus.FORBIDDEN);
+
+        private final HttpStatus status;
     }
 }
