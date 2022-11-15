@@ -8,7 +8,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -27,8 +26,8 @@ import ostasp.bookapp.order.application.port.QueryOrderUseCase;
 import ostasp.bookapp.order.domain.Recipient;
 
 import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Set;
@@ -44,7 +43,9 @@ public class CatalogInitializerService implements CatalogInitializerUseCase {
     private final QueryOrderUseCase queryOrder;
     private final AuthorJpaRepository authorRepository;
     private final RestTemplate restTemplate;
+    private static final String BOOKS_PATH = "./src/main/java/ostasp/bookapp/books.csv";
 
+    //only for test-and init data for admin user
     @Override
     @Transactional
     public void initialize() {
@@ -53,7 +54,8 @@ public class CatalogInitializerService implements CatalogInitializerUseCase {
     }
 
     private void initData() {
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(new ClassPathResource("books.csv").getInputStream()))) {
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(BOOKS_PATH))) {
             CsvToBean<CsvBook> build = new CsvToBeanBuilder<CsvBook>(reader)
                     .withType(CsvBook.class)
                     .withIgnoreLeadingWhiteSpace(true)
