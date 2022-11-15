@@ -46,6 +46,7 @@ class BookAppSecurityConfiguration  {
                 .authorizeRequests()
                 .mvcMatchers(HttpMethod.GET, "/catalog/**", "/uploads/**", "/authors/**").permitAll()
                 .mvcMatchers(HttpMethod.POST, "/orders", "/login", "/users").permitAll()
+                .mvcMatchers("swagger-ui/**","/v3/api-docs/**").hasRole("ADMIN")
                 .anyRequest().authenticated()
                 .and()
                 .httpBasic()
