@@ -27,7 +27,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
         properties = "app.orders.payment-period: 1H"
 )
 @AutoConfigureTestDatabase
-@EnableJpaAuditing
 class AbandonedOrdersJobTest {
 
     @TestConfiguration

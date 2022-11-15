@@ -3,7 +3,7 @@ package ostasp.bookapp.order.application;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ostasp.bookapp.catalog.application.security.UserSecurity;
+import ostasp.bookapp.security.UserSecurity;
 import ostasp.bookapp.catalog.db.BookJpaRepository;
 import ostasp.bookapp.catalog.domain.Book;
 import ostasp.bookapp.order.application.port.ManipulateOrderUseCase;
@@ -11,7 +11,6 @@ import ostasp.bookapp.order.db.OrderJpaRepository;
 import ostasp.bookapp.order.db.RecipientJpaRepository;
 import ostasp.bookapp.order.domain.*;
 
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 

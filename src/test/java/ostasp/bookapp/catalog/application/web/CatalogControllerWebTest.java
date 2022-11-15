@@ -7,11 +7,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import ostasp.bookapp.catalog.application.port.CatalogUseCase;
 import ostasp.bookapp.catalog.domain.Book;
+import ostasp.bookapp.user.db.UserEntityRepository;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -25,7 +27,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest({CatalogController.class})
 @WithMockUser
+@ActiveProfiles("test")
 class CatalogControllerWebTest {
+
 
     @MockBean
     CatalogUseCase catalogUseCase;

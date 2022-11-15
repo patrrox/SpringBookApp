@@ -3,6 +3,7 @@ package ostasp.bookapp.order.application.port;
 import lombok.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
 import ostasp.bookapp.order.domain.Delivery;
 import ostasp.bookapp.order.domain.OrderStatus;
 import ostasp.bookapp.order.domain.Recipient;
@@ -43,7 +44,7 @@ public interface ManipulateOrderUseCase {
     class UpdateStatusCommand{
         Long orderId;
         OrderStatus status;
-        User user;
+        UserDetails user;
     }
 
 

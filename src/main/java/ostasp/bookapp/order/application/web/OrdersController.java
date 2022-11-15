@@ -6,11 +6,11 @@ import lombok.Data;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import ostasp.bookapp.catalog.application.security.UserSecurity;
+import ostasp.bookapp.security.UserSecurity;
 import ostasp.bookapp.order.application.RichOrder;
 import ostasp.bookapp.order.application.port.ManipulateOrderUseCase;
 import ostasp.bookapp.order.application.port.ManipulateOrderUseCase.PlaceOrderCommand;
@@ -43,16 +43,16 @@ public class OrdersController {
         return queryOrder.findAll();
     }
 
-    @Secured({"ROLE_ADMIN, ROLE_USER"})
+    @Secured({"ROLE_ADMIN", "ROLE_USER"})
     @GetMapping("/{id}")
-    ResponseEntity<RichOrder> getOrderById(@PathVariable Long id, @AuthenticationPrincipal User user) {
+    ResponseEntity<RichOrder> getOrderById(@PathVariable Long id, @AuthenticationPrincipal UserDetails user) {
         return queryOrder
                 .findById(id)
                 .map(order -> authorizeAdminOrUser(order,user))
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    private ResponseEntity<RichOrder> authorizeAdminOrUser(RichOrder order, User user){
+    private ResponseEntity<RichOrder> authorizeAdminOrUser(RichOrder order, UserDetails user){
         if (userSecurity.isOwnerOrAdmin(order.getRecipient().getEmail(),user)){
             return ResponseEntity.ok(order);
         }
@@ -72,7 +72,7 @@ public class OrdersController {
     @Secured({"ROLE_ADMIN, ROLE_USER"})
     @PatchMapping ("/{id}/status")
     @ResponseStatus(ACCEPTED)
-    public void updateOrderStatus(@PathVariable Long id, @RequestBody UpdateRequestStatusCommand command,  @AuthenticationPrincipal User user) {
+    public void updateOrderStatus(@PathVariable Long id, @RequestBody UpdateRequestStatusCommand command,  @AuthenticationPrincipal UserDetails user) {
         OrderStatus orderStatus = OrderStatus
                 .parseString(command.status)
                 .orElseThrow(() -> new ResponseStatusException(BAD_REQUEST, "Unknown status: " + command.status));

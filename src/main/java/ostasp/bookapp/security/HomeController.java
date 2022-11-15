@@ -1,4 +1,4 @@
-package ostasp.bookapp.catalog.application.security;
+package ostasp.bookapp.security;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
