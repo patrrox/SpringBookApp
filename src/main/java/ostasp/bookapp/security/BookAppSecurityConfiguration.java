@@ -1,20 +1,17 @@
 package ostasp.bookapp.security;
 
 
-import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -24,16 +21,27 @@ import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import ostasp.bookapp.user.db.UserEntityRepository;
 
-@AllArgsConstructor
 @Configuration
 @EnableGlobalMethodSecurity(securedEnabled = true)
 @EnableConfigurationProperties(AdminConfig.class)
 @Profile("!test")
 class BookAppSecurityConfiguration implements WebMvcConfigurer {
 
+    private final String allowedOrigins;
     private final UserEntityRepository userEntityRepository;
     private final AdminConfig config;
     private final AuthenticationConfiguration configuration;
+
+    BookAppSecurityConfiguration(
+            @Value("${app.security.allowedOrigins}") String allowedOrigins,
+            UserEntityRepository userEntityRepository,
+            AdminConfig config,
+            AuthenticationConfiguration configuration) {
+        this.userEntityRepository = userEntityRepository;
+        this.config = config;
+        this.configuration = configuration;
+        this.allowedOrigins = allowedOrigins;
+    }
 
     @Bean
     User systemUser() {
@@ -44,18 +52,19 @@ class BookAppSecurityConfiguration implements WebMvcConfigurer {
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
                 .allowedMethods("*")
-                .allowedOrigins("*");
+                .allowedOrigins(allowedOrigins);
     }
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception  {
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf().disable();
+        http.cors();
         http.authenticationProvider(authenticationProvider());
         http
                 .authorizeRequests()
                 .mvcMatchers(HttpMethod.GET, "/catalog/**", "/uploads/**", "/authors/**").permitAll()
                 .mvcMatchers(HttpMethod.POST, "/orders", "/login", "/users").permitAll()
-                .mvcMatchers("swagger-ui/**","/v3/api-docs/**").hasRole("ADMIN")
+                .mvcMatchers("swagger-ui/**", "/v3/api-docs/**").hasRole("ADMIN")
                 .anyRequest().authenticated()
                 .and()
                 .httpBasic()
@@ -76,7 +85,7 @@ class BookAppSecurityConfiguration implements WebMvcConfigurer {
     }
 
     @Bean
-    public DaoAuthenticationProvider  authenticationProvider() {
+    public DaoAuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
         BookAppUserDetailsService detailsService = new BookAppUserDetailsService(userEntityRepository, config);
         provider.setUserDetailsService(detailsService);
