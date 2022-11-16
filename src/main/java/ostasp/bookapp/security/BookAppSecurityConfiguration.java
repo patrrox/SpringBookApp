@@ -20,6 +20,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import ostasp.bookapp.user.db.UserEntityRepository;
 
 @AllArgsConstructor
@@ -27,7 +29,7 @@ import ostasp.bookapp.user.db.UserEntityRepository;
 @EnableGlobalMethodSecurity(securedEnabled = true)
 @EnableConfigurationProperties(AdminConfig.class)
 @Profile("!test")
-class BookAppSecurityConfiguration  {
+class BookAppSecurityConfiguration implements WebMvcConfigurer {
 
     private final UserEntityRepository userEntityRepository;
     private final AdminConfig config;
@@ -38,8 +40,15 @@ class BookAppSecurityConfiguration  {
         return config.adminUser();
     }
 
+    @Override
+    public void addCorsMappings(CorsRegistry registry) {
+        registry.addMapping("/**")
+                .allowedMethods("*")
+                .allowedOrigins("*");
+    }
+
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception  {
         http.csrf().disable();
         http.authenticationProvider(authenticationProvider());
         http

@@ -7,6 +7,7 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import ostasp.bookapp.catalog.application.port.CatalogUseCase;
@@ -35,10 +36,14 @@ class CatalogControllerTest {
         Book concurrency = new Book("Java Concurrency in Practice", 2006, new BigDecimal("99.90"),10L);
         Mockito.when(catalogUseCase.findAll()).thenReturn(List.of(effective, concurrency));
         //when
-        List<Book> all = controller.getAll(Optional.empty(), Optional.empty());
+        List<RestBook> all = controller.getAll(getMockHttpServletRequest(),Optional.empty(), Optional.empty());
 
 
         //then
         assertEquals(2, all.size());
+    }
+
+    private static MockHttpServletRequest getMockHttpServletRequest() {
+        return new MockHttpServletRequest();
     }
 }

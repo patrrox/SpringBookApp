@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.test.annotation.DirtiesContext;
 import ostasp.bookapp.catalog.application.port.CatalogUseCase;
 import ostasp.bookapp.catalog.db.AuthorJpaRepository;
@@ -31,41 +32,45 @@ class CatalogControllerIT {
     AuthorJpaRepository authorJpaRepository;
 
     @Test
-    public void getAllBooks(){
+    public void getAllBooks() {
         //given
         givenEffectiveJava();
         givenJavaConcurrencyInPractice();
         //when
-        List<Book> all = controller.getAll(Optional.empty(), Optional.empty());
+        List<RestBook> all = controller.getAll(getMockHttpServletRequest(), Optional.empty(), Optional.empty());
         //then
-        assertEquals(2,all.size());
+        assertEquals(2, all.size());
+    }
+
+    private static MockHttpServletRequest getMockHttpServletRequest() {
+        return new MockHttpServletRequest();
     }
 
     @Test
-    public void getAllBooksByAuthor(){
+    public void getAllBooksByAuthor() {
         //given
         givenEffectiveJava();
         givenJavaConcurrencyInPractice();
         //when
-        List<Book> all = controller.getAll(Optional.empty(), Optional.of("Bloch"));
+        List<RestBook> all = controller.getAll(getMockHttpServletRequest(),Optional.empty(), Optional.of("Bloch"));
 
         //then
-        assertEquals(1,all.size());
-        assertEquals("Effective Java",all.get(0).getTitle());
+        assertEquals(1, all.size());
+        assertEquals("Effective Java", all.get(0).getTitle());
     }
 
 
     @Test
-    public void getAllBooksByTitle(){
+    public void getAllBooksByTitle() {
         //given
         givenEffectiveJava();
         givenJavaConcurrencyInPractice();
         //when
-        List<Book> all = controller.getAll(Optional.of("Java Concurrency in Practice"), Optional.empty());
+        List<RestBook> all = controller.getAll(getMockHttpServletRequest(),Optional.of("Java Concurrency in Practice"), Optional.empty());
 
         //then
-        assertEquals(1,all.size());
-        assertEquals("Java Concurrency in Practice",all.get(0).getTitle());
+        assertEquals(1, all.size());
+        assertEquals("Java Concurrency in Practice", all.get(0).getTitle());
     }
 
 
