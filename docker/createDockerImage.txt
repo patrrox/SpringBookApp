@@ -1,0 +1,7 @@
+
+Build image
+./mvnw spring-boot:build-image -DskipTests
+
+Run docker
+cd docker/
+docker-compose up -d
